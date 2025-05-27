@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.log
+
+# Virtual environment
+venv/
+.env
+
+# VS Code settings
+.vscode/
+
+# Mac/Windows stuff
+.DS_Store
+Thumbs.db
