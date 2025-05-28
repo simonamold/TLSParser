@@ -50,14 +50,14 @@ class TLSHandshake:
 
             match self.handshake_type:
                 case HandshakeType.CLIENT_HELLO:
-                    self.handshake_payload = ClientHello(self.raw_handshake_paylaod)
+                    self.handshake_payload = ClientHello(self.raw_handshake_paylaod, self.handshake_type)
                     try:
                         self.handshake_payload.parse_client_hello()
                     except Exception as e:
                         print("Client Hello Error:", e)
 
                 case HandshakeType.SERVER_HELLO:
-                    self.handshake_payload = ServerHello(self.raw_handshake_paylaod)
+                    self.handshake_payload = ServerHello(self.raw_handshake_paylaod, self.handshake_type)
                     try:
                         self.handshake_payload.parse_server_hello()
                     except Exception as e:

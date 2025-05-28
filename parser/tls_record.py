@@ -75,7 +75,7 @@ class TLSRecord:
         if self.length is not None and len(self.raw_packet) >= 5 + self.length:
             #self.raw_payload = self.raw_packet[5:5+self.length]
             self.raw_payload = stream.read(self.length)
-            print(f"raw payload: {self.raw_payload}")
+            #print(f"raw payload: {self.raw_payload}")
             match self.content_type:
                 case ContentType.HANDSHAKE:
                     self.payload = TLSHandshake(self.raw_payload)

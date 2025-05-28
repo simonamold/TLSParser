@@ -15,8 +15,8 @@ from common.utils import EnumResolver, read_exact
 
 class ServerHello(BaseHello):
     TAG = "ServerHello"
-    def __init__(self, handshake_payload : bytes):
-        super().__init__(handshake_payload)
+    def __init__(self, handshake_payload : bytes, handshake_type: int):
+        super().__init__(handshake_payload, handshake_type)
 
         self.cipher_suite = None
         self.compression_meth = None
@@ -34,6 +34,8 @@ class ServerHello(BaseHello):
             print("Error la suites", e)
             
         self.compression_meth = read_exact(self.stream, 1, "compression_method")
+        
+        # EXtensions
         
         print("1")
         print(f"Stream position before TLSExtensions parse: {self.stream.tell()}")

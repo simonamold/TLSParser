@@ -17,8 +17,8 @@ from common.utils import EnumResolver, read_exact
 
 class ClientHello(BaseHello):
     TAG = "ClientHello"
-    def __init__(self, handshake_payload: bytes):
-        super().__init__(handshake_payload)
+    def __init__(self, handshake_payload: bytes, handshake_type: int):
+        super().__init__(handshake_payload, handshake_type)
 
         self.cipher_suites_length = None
         self.cipher_suites = []
@@ -56,9 +56,10 @@ class ClientHello(BaseHello):
         # Extensions 
 
         if self.stream.tell() < len(self.raw_hello_msg):
-            self.extensions_total_length = int.from_bytes(read_exact(self.stream,2,'extension_total_length'), 'big')
-            self.extensions = TLSExtensions(self.stream)
-            self.extensions.parse
+            #self.extensions_total_length = int.from_bytes(read_exact(self.stream,2,'extension_total_length'), 'big')
+            self.extensions = TLSExtensions(self.stream, self.handshake_type)
+            self.extensions.parse()
+        
 
     def __str__(self):
         #base_info = super().__str__()
@@ -72,6 +73,6 @@ class ClientHello(BaseHello):
             f"Cipher Suites: {[cs.name if hasattr(cs, 'name') else hex(cs) for cs in self.cipher_suites]}\n"
             f"Compression Methods Length: {self.compression_meth_length}\n"
             f"Compression Methods: {self.compression_meth}\n"
-            #f"Extensions: {self.extensions.__str__()}"
+            f"Extensions: {self.extensions.__str__()}"
             #f"Extensions: {[ext.extension_type.name if hasattr(ext.extension_type, 'name') else ext.extension_type for ext in self.extenssions]}"
         )

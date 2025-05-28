@@ -11,9 +11,9 @@ from common.exceptions import *
 """
 TAG = "BaseHello cls: "
 class BaseHello:
-    def __init__(self, raw_data: bytes):
+    def __init__(self, raw_data: bytes, handshake_type: int):
         self.raw_hello_msg = raw_data
-
+        self.handshake_type = handshake_type
         self.stream = BytesIO(self.raw_hello_msg)
 
         self.raw_major_ver = None
