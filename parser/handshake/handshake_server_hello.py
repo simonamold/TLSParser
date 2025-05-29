@@ -41,30 +41,27 @@ class ServerHello(BaseHello):
         print(f"Stream position before TLSExtensions parse: {self.stream.tell()}")
         if self.stream.tell() < len(self.raw_hello_msg):
             print("2")
-           # self.extensions_total_length = int.from_bytes(read_exact(self.stream,2,'extension_total_length'), 'big')
+            #self.extensions_total_length = int.from_bytes(read_exact(self.stream,2,'extension_total_length'), 'big')
             
             print(f"Stream position before TLSExtensions parse 2: {self.stream.tell()}")
-            self.extensions = TLSExtensions(self.stream)
+            self.extensions = TLSExtensions(self.stream, self.handshake_type)
             self.extensions.parse()
         else:
-            print("Ceva nu e OK :))")
+            print("Ceva nu e OK")
     
 
-    def __str__(self):
-        #base_info = super().__str__()
-        return(
-            f"Version: {self.version}\n"
-            f"Random: {self.random.hex() if self.random else None}\n"
-            f"Session ID Length: {self.session_id_length}\n"
-            f"Session ID: {self.session_id if self.session_id else None}\n"
-            f"Cipher Suite: {self.cipher_suite} \n"
-            f"Compression Methods: {self.compression_meth}\n"
-            f"Extensions: {self.extensions.__str__()}"
-            #f"{base_info}\n"
-            #f"Cipher Suites Length: {self.cipher_suites_length}\n"
-            #f"Cipher Suites: {[cs.name if hasattr(cs, 'name') else hex(cs) for cs in self.cipher_suites]}\n"
-            #f"Compression Methods Length: {self.compression_meth_length}\n"
-            #f"Compression Methods: {self.compression_meth}\n"
-            #f"Extensions: {[ext.extension_type.name if hasattr(ext.extension_type, 'name') else ext.extension_type for ext in self.extensions]}"
-        )
+    def __str__(self, indent=0):
+        pad = ' ' * indent
+        parts = [
+            f"{pad}ClientHello:",
+            f"{pad}  version        = {self.version}",
+            f"{pad}  random         = {self.random.hex()}",
+            f"{pad}  session_id     = {self.session_id.hex()}",
+            f"{pad}  cipher_suite   = {self.cipher_suite}",
+            f"{pad}  compression    = {self.compression_meth}",
+        ]
+        if self.extensions:
+            parts.append(self.extensions.__str__(indent + 2))
+        return "\n".join(parts)
+    
 

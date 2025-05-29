@@ -61,18 +61,16 @@ class ClientHello(BaseHello):
             self.extensions.parse()
         
 
-    def __str__(self):
-        #base_info = super().__str__()
-        return(
-            f"Version: {self.version}\n"
-            f"Random: {self.random.hex() if self.random else None}\n"
-            f"Session ID Length: {self.session_id_length}\n"
-            f"Session ID: {self.session_id.hex() if self.session_id else None}"
-            #f"{base_info}\n"
-            f"Cipher Suites Length: {self.cipher_suites_length}\n"
-            f"Cipher Suites: {[cs.name if hasattr(cs, 'name') else hex(cs) for cs in self.cipher_suites]}\n"
-            f"Compression Methods Length: {self.compression_meth_length}\n"
-            f"Compression Methods: {self.compression_meth}\n"
-            f"Extensions: {self.extensions.__str__()}"
-            #f"Extensions: {[ext.extension_type.name if hasattr(ext.extension_type, 'name') else ext.extension_type for ext in self.extenssions]}"
-        )
+    def __str__(self, indent=0):
+        pad = ' ' * indent
+        parts = [
+            f"{pad}ClientHello:",
+            f"{pad}  version        = {self.version}",
+            f"{pad}  random         = {self.random.hex()}",
+            f"{pad}  session_id     = {self.session_id.hex()}",
+            f"{pad}  cipher_suites  = {self.cipher_suites}",
+            f"{pad}  compression    = {self.compression_meth}",
+        ]
+        if self.extensions:
+            parts.append(self.extensions.__str__(indent + 2))
+        return "\n".join(parts)

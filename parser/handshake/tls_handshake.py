@@ -29,24 +29,16 @@ class TLSHandshake:
             pass
 
         if len(self.raw_handshake) >= 1:
-            #self.raw_handshake_type = self.raw_handshake[0]
             self.raw_handshake_type = int.from_bytes(stream.read(1), 'big')
             try:
                 self.handshake_type = EnumResolver.parse(HandshakeType, self.raw_handshake_type, exception_cls=UnknownHandshakeTypeError)
             except UnknownHandshakeTypeError:
                 pass
         if len(self.raw_handshake)>= 4:
-            #self.length = int.from_bytes(self.raw_handshake[1:4], byteorder='big')
             self.length = int.from_bytes(stream.read(3), 'big')
 
         if self.length is not None and len(self.raw_handshake) >= 4 + self.length:
-            #self.raw_handshake_paylaod = self.raw_handshake[4:4+self.length]
             self.raw_handshake_paylaod = stream.read(self.length)
-
-            #print(f"Raw handshake_payload =  {len(self.raw_handshake_paylaod)}")
-
-            # print(f"In clasa de Handshake intra hanshake type : {self.handshake_type}")
-            # print(f"In clasa de Handshake intra raw hanshake type : {self.raw_handshake_type}")
 
             match self.handshake_type:
                 case HandshakeType.CLIENT_HELLO:
@@ -72,8 +64,15 @@ class TLSHandshake:
         if length < 4:
             raise IncompleteHandshakeError("Incomplete header. Received: {length} bytes. Expected 5")
 
-    def __str__(self):
-        return (
-            f"Content Type: {self.handshake_type or self.raw_handshake_type}, Length: {self.length} \n"
-            f"Payload: {self.handshake_payload}"
-        )
+
+    def __str__(self, indent=0):
+        pad = ' ' * indent
+        parts = [
+            f"{pad}TLSHandshake:",
+            f"{pad}  handshake_type = {self.handshake_type}",
+            f"{pad}  length         = {self.length}",
+        ]
+        if self.handshake_payload:
+            parts.append(f"{pad}  payload:")
+            parts.append(self.handshake_payload.__str__(indent + 4))
+        return "\n".join(parts)

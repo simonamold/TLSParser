@@ -1,10 +1,5 @@
-# TO DO: proper validations 
-# I am testing the parser with a mismatched length and it fails both to parse or store
-
-
 from io import BytesIO
 from common.enums.content_types import ContentType
-
 from common.exceptions import *
 from common.utils import EnumResolver, VersionResolver
 from .handshake.tls_handshake import TLSHandshake
@@ -18,15 +13,6 @@ from .tls_app_data import TLSAppData
 # - length = 2 bytes max 2^14
 # Ex = \x16\x03\x03\x00\x31
 
-"""
-    Considerations regarding the implementation:
-    - I initially wanted to make length and value validations directly in th constructure
-    - I realised I cannot instantiate the object without  trawing exceptions if the packet is malformed
-    - I dedided to store the byte sequence as it enters and parse it separately
-    - I thought about using placeholders in case I receive a malformed packet, basically to imitate the correct structure, however that could be problematic
-    - 
-"""
-TAG = "TLSRecord cls: "
 
 class TLSRecord:
     TAG = "TLSRecord"
@@ -49,8 +35,6 @@ class TLSRecord:
         except UnexpectedLength:
             pass
         if len(self.raw_packet) >= 1:
-            # self.raw_content_type = self.raw_packet[0]
-            # print(f"Raw content type {self.raw_content_type}")
             self.raw_content_type = int.from_bytes(stream.read(1), 'big')
             #print(f"Raw content type {self.raw_content_type}")
             try:
@@ -58,8 +42,6 @@ class TLSRecord:
             except UnknownTLSContentTypeError:
                 pass
         if len(self.raw_packet) >= 3:
-            # self.raw_major_ver = self.raw_packet[1]
-            # self.raw_minor_ver = self.raw_packet[2]
             self.raw_major_ver = int.from_bytes(stream.read(1), 'big')
             self.raw_minor_ver = int.from_bytes(stream.read(1), 'big')
 
@@ -69,13 +51,10 @@ class TLSRecord:
                 pass
        
         if len(self.raw_packet) >= 5:
-            #self.length = int.from_bytes(self.raw_packet[3:5], 'big')
             self.length = int.from_bytes(stream.read(2), 'big')
 
         if self.length is not None and len(self.raw_packet) >= 5 + self.length:
-            #self.raw_payload = self.raw_packet[5:5+self.length]
             self.raw_payload = stream.read(self.length)
-            #print(f"raw payload: {self.raw_payload}")
             match self.content_type:
                 case ContentType.HANDSHAKE:
                     self.payload = TLSHandshake(self.raw_payload)
@@ -110,11 +89,16 @@ class TLSRecord:
         if length < 5:
             raise UnexpectedLength("Incomplete header. Received: {length} bytes. Expected 5")
 
-    def __str__(self):
-        return (
-            f"TLSRecord:\n"
-            f"content_type= {self.content_type or self.raw_content_type}, \n"
-            f"version= {self.version} \n"
-            f"length= {self.length}, \n"
-            f"fragment= {self.payload}"
-        )
+
+    def __str__(self, indent=0):
+        pad = ' ' * indent
+        parts = [
+            f"{pad}TLSRecord:",
+            f"{pad}  content_type = {self.content_type}",
+            f"{pad}  version      = {self.version}",
+            f"{pad}  length       = {self.length}",
+            f"{pad}  fragment     ="
+        ]
+        parts.append(self.payload.__str__())
+        return "\n".join(parts)
+

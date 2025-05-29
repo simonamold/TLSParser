@@ -60,12 +60,13 @@ class TLSExtensions():
             self.extensions.append(extension)
 
 
-    def __str__(self):
-        if not self.extensions:
-            return "No extensions"
-        count = len(self.extensions)
-        extensions_str = "\n\n".join(str(ext) for ext in self.extensions)
-        return f"Extensions count: {count}\n\n{extensions_str}"
+    def __str__(self, indent=0):
+        pad = ' ' * indent
+        lines = [f"{pad}Extensions count: {len(self.extensions)}"]
+        for ext in self.extensions:
+            lines.append(ext.__str__(indent + 2))
+        return "\n".join(lines)
+    
 
 
 @dataclass
@@ -103,8 +104,8 @@ class TLSExtension:
         elif handshake_type == HandshakeType.SERVER_HELLO:
             if len(data) < 2:
                 raise ValueError("Incomplete Extensionin Server Hello")
-            ver_major = data[1]
-            ver_minor = data[2]
+            ver_major = data[0]
+            ver_minor = data[1]
             try:
                 version = VersionResolver.get_version(ver_major, ver_minor)
             except Exception:
@@ -183,7 +184,7 @@ class TLSExtension:
                 raise ValueError("Key Share extension to short in Server Hello")
             group = int.from_bytes(stream.read(2), 'big')
             key_length = int.from_bytes(stream.read(2), 'big')
-            if len(data) < total_length + 2: #
+            if len(data) < key_length + 2: #
                 raise ValueError("Incomplete key_exchange field in Server Hello")
             
             key_exchange = stream.read(key_length)
@@ -271,13 +272,13 @@ class TLSExtension:
 
         return modes
 
-
-    def __str__(self):
-        lines = [
-            f"Extension Type: {self.extension_type}",
-            f"Length: {self.extension_length}",
-            f"Raw Data: {self.extension_data.hex()}",
-        ]
-        if self.parsed is not None:
-            lines.append(f"Parsed: {self.parsed}")
-        return "\n".join(lines)
+    def __str__(self, indent=0):
+        pad = ' ' * indent
+        ext_type = self.extension_type.name if hasattr(self.extension_type, "name") else self.extension_type
+        parsed_str = self.parsed if isinstance(self.parsed, str) else repr(self.parsed)
+        return (
+            f"{pad}Extension Type: {ext_type}\n"
+            f"{pad}  Length    : {self.extension_length}\n"
+            f"{pad}  Raw Data  : {self.extension_data.hex()}\n"
+            f"{pad}  Parsed    : {parsed_str}"
+        )

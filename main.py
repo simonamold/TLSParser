@@ -1,6 +1,31 @@
 from parser.tls_record import TLSRecord 
 from common.exceptions import *
 
+import os
+
+from parser.tls_record import TLSRecord
+
+
+def test_tls_payload_parsing(payloads_dir="tools/tls_payloads"):
+    for filename in os.listdir(payloads_dir):
+        file_path = os.path.join(payloads_dir, filename)
+        with open(file_path, "rb") as f:
+            data = f.read()
+
+        print(f"\n --- Parsing: {filename} ---")
+        #print(data.hex())
+        try:
+            record = TLSRecord(data)
+            record.parse()
+            print(record)
+        except Exception as e:
+            print(f"Failed to parse {filename}: {e.__class__.__name__} - {e}")
+
+
+if __name__ == "__main__":
+    test_tls_payload_parsing()
+
+
 sample_tls_packet = bytes.fromhex(
         '16 03 01 00 dc'  # Record header: Handshake, TLS 1.0, length = 220 bytes
         '01 00 00 d8'      # Handshake: type=ClientHello, length=216
@@ -204,12 +229,12 @@ sample_server_hello = bytes.fromhex(
     
 )
 
-tls_sample_client_record = TLSRecord(sample_client_hello)
-try:
-    tls_sample_client_record.parse()
-except Exception as e:
-    print("Erroare de parsare", e)
-print(tls_sample_client_record)
+# tls_sample_client_record = TLSRecord(sample_client_hello)
+# try:
+#     tls_sample_client_record.parse()
+# except Exception as e:
+#     print("Erroare de parsare", e)
+# print(tls_sample_client_record)
 
 # tls_sample_server_record = TLSRecord(sample_server_hello)
 # try:
@@ -217,3 +242,50 @@ print(tls_sample_client_record)
 # except Exception as e:
 #     print("Erroare de parsare", e)
 # print(tls_sample_server_record)
+
+real_client_hello_wireshark = bytes.fromhex("16030107180100071403036d697ac841b4ee8f8" \
+"884843a14fc5413f80fd7f5490be5cb28c2e184a1c5c7d020bc7c2b3fc3d57b795512f30d12f24db52b0" \
+"9fdf856d24f15b08db8af84eddced0020caca130113021303c02bc02fc02cc030cca9cca8c013c014009c" \
+"009d002f0035010006ab2a2a0000002b0007063a3a03040303ff010001000005000501000000000023000" \
+"044cd000500030268320010000e000c02683208687474702f312e31001b0003020002000a000c000a6a6a1" \
+"1ec001d00170018000d001200100403080404010503080505010806060100000014001200000f617065782e" \
+"6f7261636c652e636f6d003304ef04ed6a6a00010011ec04c0d85c00bada72320aa59ab72003bbbb06ca5d6" \
+"173cc6c7883279c556fe9b4ac91bf35e66ad35590ef2176b74a323573a07e42ca13e94e7b823db1901ea7993" \
+"291c4bcdde5066252834e65031aa9a572880ae9738c1d4067c05ac59300773476643cfc049e0a12113756192" \
+"399a75a6e3619ad42e0b2149a77d1551cdaa30bdb1c89a0048975dcaf6b879f665370f3c7319f4271a265cc9" \
+"510734b09c04b618e0c96cd805133d7208335b35f53c65470242315a38a32550cc4ac242b75573ca8a373d176f" \
+"4635325f4a7186a9148d63e2d1230820050c2e1469ffc49320bad87d8c377f7187bb821626469bd2a587fd518d" \
+"7c57349e58f4071078ae871fa1c805871a87fab5053c3059b969abab523d33206d4da5851f6a70d739e9395416da" \
+"39effd07bd74901b950291b55cc3a347c406b58d547c587d62f5f327b52342bda676f572722a5b865df798292fa2" \
+"94ebb483ff2c423f5142d51162822b4b93172a61b4440778569712b7dc74b6afa33e8458bad6912ef19463cc95741" \
+"0a398208a349db84d8c750b9c4ac37ba3f54875c020978dac1c10adcb280922f8c5b4d57cc6dd1036a38591d91ab8a" \
+"78f6008a0530c7c76c8d173c46a694af697cdf763d18572c99776a4440c8afe90fab928666e5046a2a921a313a750c" \
+"9c48bc4ea860c6a9e251c1d941b712c7c0b5a4da9566440ab471053d9f14062c27939865498a75bc92538dddd4173f" \
+"7b5c19e4783cfb70e745ac760b6867e72945e042fb096e3ca2547ecaa7f7b41feba1c94ff2041c34af9a08d06f3aaf" \
+"7d654cf69450b6e4414a53ac2f749beb3c5c1d25b7f5b553e36061327c25093b1698aba71dea77fbbc9c7f49466b53c9" \
+"376bc24f6b26e85a13c23a929998c1353b5c5926c033f372233a6263449483b5851457c867e7bc26617dbf5575ad346f2fab59c" \
+"f0b21c51c786cc5366cf3ac167055ff27134f0b17ac18154aa6bde6340aa1003b74983525f2c1ae060c2a45190e0a87e24cb5f226" \
+"9ce433171eba4a9cda4b34a5c5ca533e50bb7e69373df379a0fd3651054ba9153b3f36ab470b2709325891cad7083626b5a2448b28b" \
+"3394f63b33a808cf0b0531b15024f042ed8b7c111323c377258aa75c13ae45937d627611c30e12b3cd48a332f17c0c320c9151214802" \
+"49615f9685c252a12f50a4c890c243c80efc4b166cbbe0034317fdb59428c360dd78eeb533560e5b83994c99d994504e122ba2b78f72" \
+"c1319d04124560f9072a2ca4b3957f90caa834ca4325f14dac9347493a7e731461a2d88e2c13e0034bea20a42c691ddaaa61ee2901c5" \
+"557f9e0b239279ed2586bd3469e5205398ca5402aec072ff2564dc7ae5e9667aeaa4cbcf96bb8c8a3419041b7f641cee26d9f0bced784" \
+"2cda7890b675386e543d5ae322bb53bb5606c3b8d44e6facc5b87b3f843c99dbf1882b43a89165861d3ba769735272a6175a858ee38a8" \
+"1ae32173e3b538f1839c514919d6962263a7a8ad9800c2798cdea408c23165f1c8c59d782dcfa45d8857e1390b58540458713cd8d9a2e" \
+"8ccbcfc472bb2e96213b06c281fc82afa76d04102a7b8a671b63afc35a98b9b22c59893a7047659f7609c6ab0206694fc5125ca13b4a8" \
+"1593625afc57db06231534c6c1a767fd17876b7db9e7ac146b3f3f29a784565abc3744a78360bcec714475cdeb36b174fde0e5e00a866" \
+"11ed78ddd8f1364f67001d0020529970babfbe868797b7529cc6ea7af39b264265f410f07f0457fbc86ba57b19fe0d011a0000010001a" \
+"10020d7ab9c1847be9e4166c578cada94188dc391a95e99a8c69af12025266491332f00f0ae9c4eca218317b2c7cb4fcab828981b231c" \
+"35615d0e8498d890c83e6de3d7c725d9f6a47ca3f53288ed7f0d24b67e491c8ecfd3e83ff8eead994889ed8373503bb1564a1b997a9d6" \
+"5edd7ab240a88cef988f52df751b4214774486553848a51bbff0e7bf9c3e3f319df3aab801babdcf41e9e00e49c08855ab51eecea0bbf" \
+"264191428576d65e5c249fa441b5dcb6e7534fec84704e918af08c4a40c7633e2d85321a9770b68b96107acfe1f0d4d636b35b1269c6f" \
+"95173740edf4707dd8621a664525d7df9f6014bb66133a441e95d60fa129c47fef7ee1a28fc77c70bdf09a058cfbd54b9327dea0c6ea1" \
+"8b9a59de00120000002d00020101000b0002010000170000aaaa000100")
+
+
+# tls_real = TLSRecord(real_client_hello_wireshark)
+# try:
+#     tls_real.parse()
+# except Exception as e:
+#     print("Erroare de parsare", e)
+# print(tls_real)

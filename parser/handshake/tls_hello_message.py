@@ -25,20 +25,13 @@ class BaseHello:
 
     def parse_common_fields(self):
         #print(f"Raw hello msg len: {len(self.raw_hello_msg)}")
-
-        # self.raw_major_ver = self.raw_hello_msg[0]
-        # self.raw_minor_ver = self.raw_hello_msg[1]
         self.raw_major_ver = int.from_bytes(self.stream.read(1), 'big')
         self.raw_minor_ver = int.from_bytes(self.stream.read(1), 'big')
         try:
             self.version = VersionResolver.get_version(self.raw_major_ver, self.raw_minor_ver)
         except UnknownTLSVersionError:
             pass
-        
-        # self.random = self.raw_hello_msg[2:34] # 2:34
-        # self.session_id_length = self.raw_hello_msg[34] # 34
-        # self.session_id = self.raw_hello_msg[35:35+self.session_id_length]
-
+ 
         self.random = self.stream.read(32)
         self.session_id_length = int.from_bytes(self.stream.read(1),'big')
         self.session_id = self.stream.read(self.session_id_length)
