@@ -12,16 +12,29 @@ def main():
     test_packets.append(sample_client_hello)
     test_packets.append(sample_server_hello)
     
-    
-    print(f"Packet 0 type: {type(test_packets[0])}")
-    for index, value in enumerate(test_packets):
-        packet = TLSRecord(value)
-        try:
-            packet.parse()
-            print(f"----------Parsing packet no: {index} -----------\n")
-            print(f"{packet} \n")
-        except Exception as e:
-            print(f"Failed to parse {index}: {e.__class__.__name__} - {e}")
+    for pkt in client_hellos:
+        packet = bytes.fromhex(pkt)
+        test_packets.append(packet)
+    for pkt in server_hellos:
+        packet = bytes.fromhex(pkt)
+        test_packets.append(packet)
+    for pkt in truncated:
+        packet = bytes.fromhex(pkt)
+        test_packets.append(packet)
+    for pkt in wireshark_packets:
+        packet = bytes.fromhex(pkt)
+        test_packets.append(packet)
+
+    log_file = "tools/tls_parse_sample_data_results.txt"
+    with open(log_file, "w") as log:
+        for index, value in enumerate(test_packets):
+            packet = TLSRecord(value)
+            log.write(f"----------Parsing packet no: {index} -----------\n")
+            try:
+                packet.parse()
+                log.write(f"{packet} \n")
+            except Exception as e:
+                log.write(f"Failed to parse {index}: {e.__class__.__name__} - {e}")
 
 
 # testing packets extracted from tcpdump capture
