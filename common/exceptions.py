@@ -3,10 +3,6 @@ class TLSParserError(Exception):
 
 class TLSUnexpectedLengthError(TLSParserError):
     pass
-    # def __init__(self, expected, received):
-    #     super().__init__(f"Length missmatch: expected {expected}, recieved {received}")
-    #     self.expected = expected
-    #     self.received = received
 
 class TLSUnknownVersionError(TLSParserError):
     pass
