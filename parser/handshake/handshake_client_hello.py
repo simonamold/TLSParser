@@ -16,9 +16,9 @@ from common.utils import EnumResolver, read_exact
 
 
 class ClientHello(BaseHello):
-    TAG = "ClientHello"
-    def __init__(self, handshake_payload: bytes, handshake_type: int):
-        super().__init__(handshake_payload, handshake_type)
+    TAG = "[ Client Hello ]"
+    def __init__(self, handshake_payload: bytes, handshake_type: int, error_list=None):
+        super().__init__(handshake_payload, handshake_type, error_list)
 
         self.cipher_suites_length = None
         self.cipher_suites = []
@@ -31,30 +31,38 @@ class ClientHello(BaseHello):
 
         self.parse_common_fields()
 
-        cipher_suite_len_bytes = read_exact(self.stream, 2, "cipher_suites_length")
-        self.cipher_suites_length = int.from_bytes(cipher_suite_len_bytes, 'big')
+        try:
+            cipher_suite_len_bytes = read_exact(self.stream, 2, "cipher_suites_length")
+            self.cipher_suites_length = int.from_bytes(cipher_suite_len_bytes, 'big')
+            cipher_suites_bytes = read_exact(self.stream, self.cipher_suites_length, "cipher_suites")
+            
+            
+            if len(cipher_suites_bytes) % 2 != 0:
+                raise TLSParserError(f"Uneven cipher suites length: receivet {len(cipher_suites_bytes)}")
+            
 
-        cipher_suites_bytes = read_exact(self.stream, self.cipher_suites_length, "cipher_suites")
-        if len(cipher_suites_bytes) % 2 != 0:
-            raise TLSParserError("Uneven cipher suites length")
-        
-
-        for i in range(0, self.cipher_suites_length, 2):
-            suite_bytes = cipher_suites_bytes[i:i+2]
-            # suite_int = int.from_bytes(suite_bytes, 'big')
-            try:
-                suite = EnumResolver.parse(CipherSuites, suite_bytes, exception_cls=Exception)
-            except TLSParserError as e:
-                print("Client Hello: Cipher Suites:", e)
-                suite = suite_bytes  
-            self.cipher_suites.append(suite)
+            for i in range(0, self.cipher_suites_length, 2):
+                suite_bytes = cipher_suites_bytes[i:i+2]
+                # suite_int = int.from_bytes(suite_bytes, 'big')
+                try:
+                    suite = EnumResolver.parse(CipherSuites, suite_bytes, exception_cls=TLSUndeclaredCipherSuite)
+                except TLSUndeclaredCipherSuite as e:
+                    self.errors.append(str(e))
+                    print(f"{self.TAG} Cipher Suite parsing error: {e}")
+                    suite = suite_bytes  
+                self.cipher_suites.append(suite)
 
 
-        self.compression_meth_length = int.from_bytes(read_exact(self.stream, 1, "compression_methods_length"), "big")
-        self.compression_meth = read_exact(self.stream, self.compression_meth_length, "compression_methods")
+            self.compression_meth_length = int.from_bytes(read_exact(self.stream, 1, "compression_methods_length"), "big")
+            self.compression_meth = read_exact(self.stream, self.compression_meth_length, "compression_methods")
+        except TLSParserError as e:
+            self.is_valid = False
+            self.errors.append(str(e))
+            print(f"{self.TAG} : {e}")
+
 
         # Extensions 
-
+        # Checking if there are bytes left after mandatory fields
         if self.stream.tell() < len(self.raw_hello_msg):
             #self.extensions_total_length = int.from_bytes(read_exact(self.stream,2,'extension_total_length'), 'big')
             self.extensions = TLSExtensions(self.stream, self.handshake_type)
@@ -66,8 +74,8 @@ class ClientHello(BaseHello):
         parts = [
             f"{pad}ClientHello:",
             f"{pad}  version        = {self.version}",
-            f"{pad}  random         = {self.random.hex()}",
-            f"{pad}  session_id     = {self.session_id.hex()}",
+            f"{pad}  random         = {self.random}",
+            f"{pad}  session_id     = {self.session_id}",
             f"{pad}  cipher_suites  = {self.cipher_suites}",
             f"{pad}  compression    = {self.compression_meth}",
         ]

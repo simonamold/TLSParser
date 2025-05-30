@@ -1,3 +1,5 @@
+""" Function to extrat packet from a .pcap and store them in a .bin"""
+
 from scapy.all import rdpcap, TCP
 import os
 

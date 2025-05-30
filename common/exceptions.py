@@ -1,31 +1,26 @@
 class TLSParserError(Exception):
     """Base class for parsing errors"""
 
+class TLSUnexpectedLengthError(TLSParserError):
+    pass
+    # def __init__(self, expected, received):
+    #     super().__init__(f"Length missmatch: expected {expected}, recieved {received}")
+    #     self.expected = expected
+    #     self.received = received
 
-# TLS Record
-class TLSRecordError(TLSParserError):
-    """Base class for TLS Record errors"""
-
-class TLSUnexpectedLengthError(TLSRecordError):
+class TLSUnknownVersionError(TLSParserError):
     pass
 
-class IncompletePayloadError(TLSRecordError):
+class TLSUnknownContentTypeError(TLSParserError):
     pass
 
-class UnknownTLSVersionError(TLSRecordError):
+class TLSUnknownHandshakeTypeError(TLSParserError):
     pass
 
-class UnknownTLSContentTypeError(TLSRecordError):
+class TLSUnknownExtensionTypeError(TLSParserError):
     pass
 
-# TLS Handshake
-class TLSHandshakeError(TLSParserError):
-    """Base class for handshake parsing errors"""
-
-class IncompleteHandshakeError(TLSHandshakeError):
-    pass
-
-class UnknownHandshakeTypeError(TLSHandshakeError):
+class TLSUndeclaredCipherSuite(TLSParserError):
     pass
 
 # TLS Alert

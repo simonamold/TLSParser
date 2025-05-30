@@ -9,9 +9,13 @@ from common.exceptions import *
     session_is_length 1 byte
     session_id <0...32> byes
 """
-TAG = "BaseHello cls: "
+
 class BaseHello:
-    def __init__(self, raw_data: bytes, handshake_type: int):
+    TAG = "[ BaseHello ]"
+    def __init__(self, raw_data: bytes, handshake_type: int, error_list=None):
+        self.is_valid = True
+        self.errors = error_list if error_list is not None else []
+        
         self.raw_hello_msg = raw_data
         self.handshake_type = handshake_type
         self.stream = BytesIO(self.raw_hello_msg)
@@ -29,8 +33,11 @@ class BaseHello:
         self.raw_minor_ver = int.from_bytes(self.stream.read(1), 'big')
         try:
             self.version = VersionResolver.get_version(self.raw_major_ver, self.raw_minor_ver)
-        except UnknownTLSVersionError:
-            pass
+        except TLSUnknownVersionError as e:
+            self.is_valid = False
+            self.errors.append(str(e))
+            print(f"{self.TAG} Version parsing error: {e}")
+            self.version = bytes(self.raw_major_ver, self.raw_minor_ver)
  
         self.random = self.stream.read(32)
         self.session_id_length = int.from_bytes(self.stream.read(1),'big')

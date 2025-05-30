@@ -1,7 +1,7 @@
 from io import BytesIO
 from common.enums.content_types import ContentType
 from common.exceptions import *
-from common.utils import EnumResolver, VersionResolver, validate_min_length
+from common.utils import EnumResolver, VersionResolver, validate_declared_length, validate_min_length
 from .handshake.tls_handshake import TLSHandshake
 from .tls_alert import TLSAlert
 from .tls_change_cipher_spec import TLSChangeCipherSpe
@@ -15,10 +15,11 @@ from .tls_app_data import TLSAppData
 
 
 class TLSRecord:
-    TAG = "TLSRecord"
+    TAG = "[ TLS Record ]"
     def __init__(self, raw_bytes: bytes):
         self.is_valid = True
         self.errors = []
+
         self.raw_packet = raw_bytes
         self.raw_content_type = None
         self.raw_major_ver = None
@@ -35,23 +36,26 @@ class TLSRecord:
 
         # Check the header length and drop the pachet if < 5
         try:
-            validate_min_length(self.raw_packet, 5, context=TLSRecord.TAG)
+            validate_min_length(self.raw_packet, 5, context=self.TAG)
         except TLSUnexpectedLengthError as e:
             self.is_valid = False
             self.errors[str(e)]
-            print(f"Packet dropped: {e}")
+            print(f"{self.TAG} Packet dropped: {e}")
             return
         
         
         self.raw_content_type = int.from_bytes(stream.read(1), 'big')
-            #print(f"Raw content type {self.raw_content_type}")
+        #print(f"Raw content type {self.raw_content_type}")
         try:
             self.content_type = EnumResolver.parse(
                 ContentType, 
                 self.raw_content_type, 
-                exception_cls=UnknownTLSContentTypeError)
-        except UnknownTLSContentTypeError:
-            pass
+                exception_cls=TLSUnknownContentTypeError)
+        except TLSUnknownContentTypeError as e:
+            self.is_valid = False
+            self.errors.append(str(e))
+            print(f"{self.TAG} Content type parsing error: {e}")
+            self.content_type = self.raw_content_type
         
         self.raw_major_ver = int.from_bytes(stream.read(1), 'big')
         self.raw_minor_ver = int.from_bytes(stream.read(1), 'big')
@@ -60,48 +64,49 @@ class TLSRecord:
             self.version = VersionResolver.get_version(
                 self.raw_major_ver, 
                 self.raw_minor_ver)
-        except UnknownTLSVersionError:
-            pass
+        except TLSUnknownVersionError as e:
+            self.is_valid = False
+            self.errors.append(str(e))
+            print(f"{self.TAG} Version parsing error: {e}")
+            self.version = bytes(self.raw_major_ver, self.raw_minor_ver)
        
         
         self.length = int.from_bytes(stream.read(2), 'big')
 
-        if self.length is not None and len(self.raw_packet) >= 5 + self.length:
+        try:
+            validate_declared_length(self.raw_packet, self.length, header_length=5, context=self.TAG)
             self.raw_payload = stream.read(self.length)
-            match self.content_type:
-                case ContentType.HANDSHAKE:
-                    self.payload = TLSHandshake(self.raw_payload)
-                    try:
+            try:
+                match self.content_type:
+                    case ContentType.HANDSHAKE:
+                        self.payload = TLSHandshake(self.raw_payload, error_list=self.errors)
                         self.payload.parse_handshake()
-                    except Exception as e:
-                        print("Record Error:", e)
-
-                case ContentType.ALERT:
-                    self.payload = TLSAlert(self.raw_payload)
-                    try:
+  
+                    case ContentType.ALERT:
+                        self.payload = TLSAlert(self.raw_payload)
                         self.payload.parse()
-                    except TLSParserError:
-                        self.payload = None
 
-                case ContentType.CHANGE_CIPHER_SPEC:  
-                    self.payload = TLSChangeCipherSpe(self.raw_payload)
-                    try:
+                    case ContentType.CHANGE_CIPHER_SPEC:  
+                        self.payload = TLSChangeCipherSpe(self.raw_payload)
                         self.payload.parse()
-                    except TLSParserError:
+
+                    case ContentType.APPLICATION_DATA:
+                        self.payload = TLSAppData(self.raw_payload)
+
+                    case _:
+                        print(f"[{self.TAG}] Unknown content type: {self.content_type}")
                         self.payload = None
+            except TLSParserError as e:
+                self.is_valid = False
+                self.errors.append(str(e))
+                print(f"{self.TAG} Payload parsing error: {e}")
 
-                case ContentType.APPLICATION_DATA:
-                    self.payload = TLSAppData(self.raw_payload)
+        except TLSUnexpectedLengthError as e:
+            self.is_valid = False
+            self.errors.append(str(e))
+            print(f"{self.TAG} Payload length validation error: {e}")
 
-                case _:
-                    print(f"[{self.TAG}] Unknown content type: {self.content_type}")
-                    self.payload = None
-
-        
-    def validate_header(self, length: int):
-        if length < 5:
-            raise UnexpectedLength("Incomplete header. Received: {length} bytes. Expected 5")
-
+    
 
     def __str__(self, indent=0):
         pad = ' ' * indent

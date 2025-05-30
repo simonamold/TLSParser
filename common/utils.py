@@ -1,11 +1,22 @@
 from io import BytesIO
 from common.enums.tls_version import TLSVersion
-from common.exceptions import TLSUnexpectedLengthError, UnknownTLSVersionError, TLSParserError
+from common.exceptions import TLSUnexpectedLengthError, TLSUnknownVersionError, TLSParserError
 
 def validate_min_length(data: bytes, min_length: int, context: str = "Unknown"):
     if len(data) < min_length:
-        raise TLSUnexpectedLengthError(f"{context} too short: expected min {min_length}, received {len(data)}")
+        raise TLSUnexpectedLengthError(
+            f"{context} too short: expected min {min_length}, received {len(data)}"
+        )
 
+def validate_declared_length(data: bytes, declare_length: int, header_length: int = 0, context: str = "Unknown"):
+    total_required = header_length + declare_length
+    actual_received = len(data)
+
+    if actual_received < total_required:
+        raise TLSUnexpectedLengthError(
+            f"{context} declared lenght= {declare_length} "
+            f"received {actual_received - header_length}"
+        )
 
 class EnumResolver:
     @staticmethod
@@ -24,7 +35,7 @@ class VersionResolver:
             version_bytes = bytes([major, minor])
             return TLSVersion(version_bytes)
         except ValueError:
-            raise UnknownTLSVersionError(
+            raise TLSUnknownVersionError(
                 f"Unknown TLS version:(0x{major:02x} 0x{minor:02x})"
             )
         
