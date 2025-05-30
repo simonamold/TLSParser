@@ -1,11 +1,18 @@
+import os
 from parser.tls_record import TLSRecord 
 from common.exceptions import *
 
-import os
+def main():
+    #test_tls_payload_parsing()
+    client_hello = TLSRecord(sample_client_hello)
+    try:
+        client_hello.parse()
+    except Exception as e:
+        print("Erroare de parsare: ", e)
+    print(client_hello)
 
-from parser.tls_record import TLSRecord
 
-
+# testing packets extracted from tcpdump capture
 def test_tls_payload_parsing(payloads_dir="tools/tls_payloads"):
     for filename in os.listdir(payloads_dir):
         file_path = os.path.join(payloads_dir, filename)
@@ -22,11 +29,7 @@ def test_tls_payload_parsing(payloads_dir="tools/tls_payloads"):
             print(f"Failed to parse {filename}: {e.__class__.__name__} - {e}")
 
 
-if __name__ == "__main__":
-    test_tls_payload_parsing()
-
-
-sample_tls_packet = bytes.fromhex(
+sample_incomplete_payload = bytes.fromhex(
         '16 03 01 00 dc'  # Record header: Handshake, TLS 1.0, length = 220 bytes
         '01 00 00 d8'      # Handshake: type=ClientHello, length=216
         '03 03'            # Version: TLS 1.2
@@ -43,11 +46,11 @@ sample_tls_packet = bytes.fromhex(
         '00 00'
     )
 
-sample_tls_packet_2 = bytes.fromhex(
+sample_incomplete_header = bytes.fromhex(
         '16 03'
     )
 
-sample = bytes.fromhex(
+sample_handshake_client_hello = bytes.fromhex(
     "16 03 05 00 2f "  # TLS record header: Handshake, TLS 1.0, 47 bytes
     "01 00 00 2b"     # Handshake message: ClientHello (0x01), length 43 bytes
     "03 03"           # ClientHello version: TLS 1.2
@@ -86,54 +89,6 @@ client_hello_bytes = bytes.fromhex(
     "00"
     "00 00"
 )
-#print(len(sample))
-# record = TLSRecord(sample)
-# try:
-#     record.parse()
-# except IncompletePayloadError as e:\\\
-#     print("Record error: ", e)
-# record_2 = TLSRecord(sample)
-
-# try:
-#     record_2.parse()
-# except UnknownTLSVersionError as e:
-#     print("Record error: ", e)
-# print(record_2)
-
-
-# PLACEHOLDER_VALUE = b'\xFF'
-# print(PLACEHOLDER_VALUE.hex() * 2)
-
-#print(len(sample_tls_packet))
-#print(record_2)
-
-# tls_alert_packet = TLSRecord(sample_alert)
-# try:
-#     tls_alert_packet.parse()
-# except IncompleteHeaderError as e:
-#    print("Error: ", e)
-
-# print(tls_alert_packet)
-#print(tls_alert_packet.parsed_payload)
-
-# tls_css_packet = TLSRecord(sample_css)
-# tls_css_packet.parse()
-# print(tls_css_packet)
-
-
-# tls_handshake_packett = TLSRecord(sample_tls_packet)
-# tls_handshake_packett.parse()
-# try:
-#     tls_handshake_packett.parse()
-# except Exception as e:
-#     print("parsing error: ", e)
-#print(tls_handshake_packett)
-#print(tls_handshake_packett.parsed_payload.raw_handshake.hex())
-
-
-# tls_test = TLSRecord(client_hello_bytes)
-# tls_test.parse()
-# print(tls_test)
 
 
 client_hello_packet = bytes.fromhex(
@@ -151,24 +106,6 @@ client_hello_packet = bytes.fromhex(
     "01"                             # Compression Methods Length
     "00"                             # Compression Method: null
 )
-
-# tls_client_hello_test = TLSRecord(client_hello_packet)
-# try:
-#     tls_client_hello_test.parse()
-# except Exception as e:
-#     print("Erroare de parsare", e)
-#print(tls_client_hello_test)
-
-# print(tls_client_hello_test.parsed_payload.handshake_payload.version)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.random)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.session_id_length)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.session_id)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.cipher_suites_length)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.cipher_suites)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.compression_meth_length)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.compression_meth)
-# print(tls_client_hello_test.parsed_payload.handshake_payload.extenssions)
-# print(tls_client_hello_test)
 
 
 server_hello_packet = bytes.fromhex(
@@ -197,13 +134,8 @@ server_hello_packet = bytes.fromhex(
     "65 78 61 6d 70 6c 65 2e 63 6f 6d"  # Server Name: "example.com"
 )
 
-# server_hello_test = TLSRecord(server_hello_packet)
-# try:
-#     server_hello_test.parse()
-# except Exception as e:
-#     print("Erroare de parsare", e)
-# print(server_hello_test)
-#print(server_hello_test.payload.handshake_payload.extensions.count())
+
+# both from https://tls13.xargs.org/
 
 sample_client_hello = bytes.fromhex(
     "16 03 01 00 f8" \
@@ -229,19 +161,6 @@ sample_server_hello = bytes.fromhex(
     
 )
 
-# tls_sample_client_record = TLSRecord(sample_client_hello)
-# try:
-#     tls_sample_client_record.parse()
-# except Exception as e:
-#     print("Erroare de parsare", e)
-# print(tls_sample_client_record)
-
-# tls_sample_server_record = TLSRecord(sample_server_hello)
-# try:
-#     tls_sample_server_record.parse()
-# except Exception as e:
-#     print("Erroare de parsare", e)
-# print(tls_sample_server_record)
 
 real_client_hello_wireshark = bytes.fromhex("16030107180100071403036d697ac841b4ee8f8" \
 "884843a14fc5413f80fd7f5490be5cb28c2e184a1c5c7d020bc7c2b3fc3d57b795512f30d12f24db52b0" \
@@ -283,9 +202,5 @@ real_client_hello_wireshark = bytes.fromhex("16030107180100071403036d697ac841b4e
 "8b9a59de00120000002d00020101000b0002010000170000aaaa000100")
 
 
-# tls_real = TLSRecord(real_client_hello_wireshark)
-# try:
-#     tls_real.parse()
-# except Exception as e:
-#     print("Erroare de parsare", e)
-# print(tls_real)
+if __name__ == "__main__":
+    main()

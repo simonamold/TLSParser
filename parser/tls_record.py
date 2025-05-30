@@ -1,7 +1,7 @@
 from io import BytesIO
 from common.enums.content_types import ContentType
 from common.exceptions import *
-from common.utils import EnumResolver, VersionResolver
+from common.utils import EnumResolver, VersionResolver, validate_min_length
 from .handshake.tls_handshake import TLSHandshake
 from .tls_alert import TLSAlert
 from .tls_change_cipher_spec import TLSChangeCipherSpe
@@ -17,6 +17,8 @@ from .tls_app_data import TLSAppData
 class TLSRecord:
     TAG = "TLSRecord"
     def __init__(self, raw_bytes: bytes):
+        self.is_valid = True
+        self.errors = []
         self.raw_packet = raw_bytes
         self.raw_content_type = None
         self.raw_major_ver = None
@@ -30,28 +32,39 @@ class TLSRecord:
 
     def parse(self):
         stream = BytesIO(self.raw_packet)
-        try:
-            self.validate_header(len(self.raw_packet))   
-        except UnexpectedLength:
-            pass
-        if len(self.raw_packet) >= 1:
-            self.raw_content_type = int.from_bytes(stream.read(1), 'big')
-            #print(f"Raw content type {self.raw_content_type}")
-            try:
-                self.content_type = EnumResolver.parse(ContentType, self.raw_content_type, exception_cls=UnknownTLSContentTypeError)
-            except UnknownTLSContentTypeError:
-                pass
-        if len(self.raw_packet) >= 3:
-            self.raw_major_ver = int.from_bytes(stream.read(1), 'big')
-            self.raw_minor_ver = int.from_bytes(stream.read(1), 'big')
 
-            try:
-                self.version = VersionResolver.get_version(self.raw_major_ver, self.raw_minor_ver)
-            except UnknownTLSVersionError:
-                pass
+        # Check the header length and drop the pachet if < 5
+        try:
+            validate_min_length(self.raw_packet, 5, context=TLSRecord.TAG)
+        except TLSUnexpectedLengthError as e:
+            self.is_valid = False
+            self.errors[str(e)]
+            print(f"Packet dropped: {e}")
+            return
+        
+        
+        self.raw_content_type = int.from_bytes(stream.read(1), 'big')
+            #print(f"Raw content type {self.raw_content_type}")
+        try:
+            self.content_type = EnumResolver.parse(
+                ContentType, 
+                self.raw_content_type, 
+                exception_cls=UnknownTLSContentTypeError)
+        except UnknownTLSContentTypeError:
+            pass
+        
+        self.raw_major_ver = int.from_bytes(stream.read(1), 'big')
+        self.raw_minor_ver = int.from_bytes(stream.read(1), 'big')
+
+        try:
+            self.version = VersionResolver.get_version(
+                self.raw_major_ver, 
+                self.raw_minor_ver)
+        except UnknownTLSVersionError:
+            pass
        
-        if len(self.raw_packet) >= 5:
-            self.length = int.from_bytes(stream.read(2), 'big')
+        
+        self.length = int.from_bytes(stream.read(2), 'big')
 
         if self.length is not None and len(self.raw_packet) >= 5 + self.length:
             self.raw_payload = stream.read(self.length)

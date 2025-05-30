@@ -1,6 +1,11 @@
 from io import BytesIO
 from common.enums.tls_version import TLSVersion
-from common.exceptions import UnknownTLSVersionError, TLSParserError
+from common.exceptions import TLSUnexpectedLengthError, UnknownTLSVersionError, TLSParserError
+
+def validate_min_length(data: bytes, min_length: int, context: str = "Unknown"):
+    if len(data) < min_length:
+        raise TLSUnexpectedLengthError(f"{context} too short: expected min {min_length}, received {len(data)}")
+
 
 class EnumResolver:
     @staticmethod

@@ -44,9 +44,9 @@ class ClientHello(BaseHello):
             # suite_int = int.from_bytes(suite_bytes, 'big')
             try:
                 suite = EnumResolver.parse(CipherSuites, suite_bytes, exception_cls=Exception)
-            except Exception as e:
-                print("Error la suites", e)
-                suite = None  
+            except TLSParserError as e:
+                print("Client Hello: Cipher Suites:", e)
+                suite = suite_bytes  
             self.cipher_suites.append(suite)
 
 

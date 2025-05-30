@@ -6,7 +6,7 @@ class TLSParserError(Exception):
 class TLSRecordError(TLSParserError):
     """Base class for TLS Record errors"""
 
-class UnexpectedLength(TLSRecordError):
+class TLSUnexpectedLengthError(TLSRecordError):
     pass
 
 class IncompletePayloadError(TLSRecordError):
