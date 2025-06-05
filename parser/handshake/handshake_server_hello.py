@@ -56,10 +56,11 @@ class ServerHello(BaseHello):
         pad = ' ' * indent
         parts = [
             f"{pad}ClientHello:",
-            f"{pad}  version        = {self.version}",
+            f"{pad}  version        = {self.version.name} ({self.version.value.hex()})",
+            f"{pad}  random         = {self.random.hex()}",
             f"{pad}  random         = {self.random.hex()}",
             f"{pad}  session_id     = {self.session_id.hex()}",
-            f"{pad}  cipher_suite   = {self.cipher_suite}",
+            f"{pad}  cipher_suite   = {self.cipher_suite} ({self.cipher_suite.hex()})",
             f"{pad}  compression    = {self.compression_meth}",
         ]
         if self.extensions:

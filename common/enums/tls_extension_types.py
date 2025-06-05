@@ -1,20 +1,37 @@
 from enum import Enum
 
-# As defined in RFC 8446 Section 4.2 https://www.rfc-editor.org/rfc/rfc8446.html#section-4.2
+# As defined in RFC 8446 Section 4.2 https://www.rfc-editor.org/rfc/rfc8446.html#section-4.2 
+# IANA https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml
 
 class ExtensionType(Enum):
     SERVER_NAME = 0
     MAX_FRAGMENT_LENGTH = 1
+    CLIENT_CERTIFICATE_URL = 2
+    TRUSTED_CA_KEYS = 3
+    TRUNCATED_HMAC = 4
     STATUS_REQUEST = 5
-    SUPPORTED_GROUPS = 10
+    USER_MAPPING = 6
+    CLIENT_AUTHZ = 7
+    SERVER_AUTHZ = 8
+    CERT_TYPE = 9
+    SUPPORTED_GROUPS = 10 
+    EC_POINT_FORMATS = 11
+    SRP = 12
     SIGNATURE_ALGORITHMS = 13
     USE_SRTP = 14
     HEARTBEAT = 15
-    ALPN = 16  # Application Layer Protocol Negotiation
+    APPLICATION_LAYER_PROTOCOL_NEGOTIATION = 16  # ALPN
+    STATUS_REQUEST_V2 = 17
     SIGNED_CERTIFICATE_TIMESTAMP = 18
-    CLIENT_CERTIFICATE_TYPE = 19
-    SERVER_CERTIFICATE_TYPE = 20
+    CLIENT_CERT_TYPE = 19
+    SERVER_CERT_TYPE = 20
     PADDING = 21
+    ENCRYPT_THEN_MAC = 22
+    EXTENDED_MASTER_SECRET = 23
+    TOKEN_BINDING = 24
+    CACHED_INFO = 25
+    SESSION_TICKET = 35
+    RENNEGOTIATION_INFO = 65281 
     PRE_SHARED_KEY = 41
     EARLY_DATA = 42
     SUPPORTED_VERSIONS = 43
@@ -25,6 +42,5 @@ class ExtensionType(Enum):
     POST_HANDSHAKE_AUTH = 49
     SIGNATURE_ALGORITHMS_CERT = 50
     KEY_SHARE = 51
-
-    # Reserved but sometimes seen
-    RENEGOTIATION_INFO = 65281  # 0xFF01
+    
+    

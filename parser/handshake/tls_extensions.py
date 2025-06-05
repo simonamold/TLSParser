@@ -77,6 +77,10 @@ class TLSExtensions():
                 
                     case ExtensionType.PSK_KEY_EXCHANGE_MODES:
                         extension.parsed = extension.extract_psk_key_exchange_modes(extension_data)
+
+                    case ExtensionType.APPLICATION_LAYER_PROTOCOL_NEGOTIATION:
+                        extension.parsed = extension.extract_alpn(extension_data, self.handshake_type)
+                        
             except ValueError as e:
                 self.errors.append(str(e))
                 print(f"{self.TAG} error: {e}")
@@ -197,7 +201,7 @@ class TLSExtension:
 
         if handshake_type == HandshakeType.CLIENT_HELLO:
             if len(data) < 2:
-                raise ValueError(f"{tag} Key Share extension too short in CLient Hello")
+                raise ValueError(f"{tag} extension too short in CLient Hello")
             total_length = int.from_bytes(stream.read(2), 'big')
             while stream.tell() <= total_length:
                 group = int.from_bytes(stream.read(2), 'big')
@@ -306,14 +310,79 @@ class TLSExtension:
                 modes.append(f"unknown (0x{mode:02x})")
 
         return modes
+    
+
+    """
+        ALPN: APPLICATION_LAYER_PROTOCOL_NEGOTIATION
+        Client Hello:
+        - 2 bytes protocol name list
+        - 1 byte name_length
+        - name
+        Server Hello:
+        - 1 byte name_length
+        - name
+    """
+    @staticmethod
+    def extract_alpn(data: bytes, handshake_type: int):
+        tag = "ALPN"
+        stream = BytesIO(data)
+        protocols = []
+
+        if handshake_type == HandshakeType.CLIENT_HELLO:
+            if len(data) < 2:
+                raise ValueError(f"{tag} extension too short")
+            total_length = int.from_bytes(stream.read(2), 'big')
+            bytes_read = 0
+            while bytes_read < total_length:
+                name_length = int.from_bytes(stream.read(1), 'big')
+                protocol_bytes = stream.read(name_length)
+                try:
+                    protocol = protocol_bytes.decode('utf-8')
+                except UnicodeDecodeError:
+                    protocol = protocol_bytes.hex()
+                protocols.append(protocol)
+                bytes_read += 1 + name_length
+            return protocols
+        
+        elif handshake_type == HandshakeType.SERVER_HELLO:  
+            if len(data) < 1:
+                raise ValueError(f"{tag} extension too short")
+            name_length = int.from_bytes(stream.read(1), 'big')
+            protocol_bytes = stream.read(name_length)
+            try:
+                protocol = protocol_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                protocol = protocol_bytes.hex()     
+            protocols.append(protocol)
+            return protocols
+
+    
+    def is_iterable(self, obj):
+        return (
+            hasattr(obj, '__iter__') and 
+            not isinstance(obj, (str, bytes))
+        )
 
     def __str__(self, indent=0):
         pad = ' ' * indent
         ext_type = self.extension_type.name if hasattr(self.extension_type, "name") else self.extension_type
-        parsed_str = self.parsed if isinstance(self.parsed, str) else repr(self.parsed)
-        return (
-            f"{pad}Extension Type: {ext_type}\n"
-            f"{pad}  Length    : {self.extension_length}\n"
-            #f"{pad}  Raw Data  : {self.extension_data.hex()}\n"
-            f"{pad}  Parsed    : {parsed_str}"
-        )
+
+        lines = [f"{pad}Extension Type: {ext_type}",
+                f"{pad}  Length    : {self.extension_length}"]
+        
+        if self.is_iterable(self.parsed):
+            lines.append(f"{pad}  Parsed    :")
+            for item in self.parsed:       
+                if hasattr(item, '__str__'):
+                    try:
+                        item_str = item.__str__(indent + 4)
+                    except TypeError:
+                        item_str = ' ' * (indent + 4) + str(item)
+                else:
+                        item_str = ' ' * (indent + 4) + str(item)
+                lines.append(item_str)
+        else:
+            parsed_str = self.parsed if isinstance(self.parsed, str) else repr(self.parsed)
+            lines.append(f"{pad}  Parsed    : {parsed_str}")
+
+        return "\n".join(lines)

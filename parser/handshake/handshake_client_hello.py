@@ -2,8 +2,7 @@ from common.enums.cipher_suites import CipherSuites
 from common.exceptions import *
 from parser.handshake.tls_extensions import TLSExtensions
 from parser.handshake.tls_hello_message import BaseHello
-from common.utils import EnumResolver, read_exact
-
+from common.utils import EnumResolver, read_exact, format_cipher_suites
 # Client Hello Structure  RFC 8446
 #   client_version 2 bytes
 #   random 32 bytes
@@ -73,12 +72,15 @@ class ClientHello(BaseHello):
         pad = ' ' * indent
         parts = [
             f"{pad}ClientHello:",
-            f"{pad}  version        = {self.version}",
-            f"{pad}  random         = {self.random}",
-            f"{pad}  session_id     = {self.session_id}",
-            f"{pad}  cipher_suites  = {self.cipher_suites}",
-            f"{pad}  compression    = {self.compression_meth}",
+            f"{pad}  version        = {self.version.name} ({self.version.value.hex()})",
+            f"{pad}  random         = {self.random.hex()}",
+            f"{pad}  session_id_len = {self.session_id_length}",
+            f"{pad}  session_id     = {self.session_id.hex()}",
+            # f"{pad}  cipher_suites  = {self.cipher_suites}",
+            f"{pad}  cipher_suites      =", format_cipher_suites(self.cipher_suites, indent + 4),
+            f"{pad}  compression    = {self.compression_meth.hex()}",
         ]
         if self.extensions:
             parts.append(self.extensions.__str__(indent + 2))
+
         return "\n".join(parts)

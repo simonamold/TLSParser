@@ -1,3 +1,4 @@
+from enum import Enum
 from io import BytesIO
 from common.enums.tls_version import TLSVersion
 from common.exceptions import TLSUnexpectedLengthError, TLSUnknownVersionError, TLSParserError
@@ -47,3 +48,17 @@ def read_exact(stream: BytesIO, n: int, field_name = "field") -> bytes:
             f"Incomplete read for {field_name}: expected {n}, received {len(data)}"
         )
     return data
+
+def format_cipher_suites(items, indent=0):
+    pad = ' ' * indent
+    lines = []
+    for item in items:
+        if isinstance(item, Enum):
+            lines.append(f"{pad}- {item.name} ({item.value.hex()})")
+        elif isinstance(item, dict):
+            lines.append(f"{pad}-")
+            for k, v in item.items():
+                lines.append(f"{pad}    {k}: {v}")
+        else:
+            lines.append(f"{pad}- {str(item)}")
+    return "\n".join(lines)
