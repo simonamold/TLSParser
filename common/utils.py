@@ -55,10 +55,10 @@ def format_cipher_suites(items, indent=0):
     for item in items:
         if isinstance(item, Enum):
             lines.append(f"{pad}- {item.name} ({item.value.hex()})")
-        elif isinstance(item, dict):
-            lines.append(f"{pad}-")
-            for k, v in item.items():
-                lines.append(f"{pad}    {k}: {v}")
+        # elif isinstance(item, dict):
+        #     lines.append(f"{pad}-")
+        #     for k, v in item.items():
+        #         lines.append(f"{pad}    {k}: {v}")
         else:
             lines.append(f"{pad}- {str(item)}")
     return "\n".join(lines)

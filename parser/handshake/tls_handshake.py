@@ -110,7 +110,8 @@ class TLSHandshake:
         pad = ' ' * indent
         parts = [
             f"{pad}TLSHandshake:",
-            f"{pad}  handshake_type = {self.handshake_type}",
+            f"{pad}  handshake_type = {self.handshake_type.name if hasattr(self.handshake_type, "name") else self.handshake_type}"
+            f" ({self.handshake_type.value if hasattr(self.handshake_type, "value") else self.handshake_type})",
             f"{pad}  length         = {self.length}",
         ]
         if self.handshake_payload:

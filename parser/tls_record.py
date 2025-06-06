@@ -16,7 +16,7 @@ from .tls_app_data import TLSAppData
 
 class TLSRecord:
     TAG = "[ TLS Record ]"
-    def __init__(self, raw_bytes: bytes):
+    def __init__(self, raw_bytes: BytesIO):
         self.is_valid = True
         self.errors = []
 
@@ -44,6 +44,7 @@ class TLSRecord:
             return
         
         
+        
         self.raw_content_type = int.from_bytes(stream.read(1), 'big')
         #print(f"Raw content type {self.raw_content_type}")
         try:
@@ -68,8 +69,8 @@ class TLSRecord:
             self.is_valid = False
             self.errors.append(str(e))
             print(f"{self.TAG} Version parsing error: {e}")
-            self.version = bytes(self.raw_major_ver, self.raw_minor_ver)
-       
+            self.version = bytes([self.raw_major_ver, self.raw_minor_ver])
+    
         
         self.length = int.from_bytes(stream.read(2), 'big')
 
@@ -81,7 +82,7 @@ class TLSRecord:
                     case ContentType.HANDSHAKE:
                         self.payload = TLSHandshake(self.raw_payload, error_list=self.errors)
                         self.payload.parse_handshake()
-  
+
                     case ContentType.ALERT:
                         self.payload = TLSAlert(self.raw_payload)
                         self.payload.parse()
@@ -105,15 +106,19 @@ class TLSRecord:
             self.is_valid = False
             self.errors.append(str(e))
             print(f"{self.TAG} Payload length validation error: {e}")
-
+        
     
 
     def __str__(self, indent=0):
         pad = ' ' * indent
+        cont_type = self.content_type.name if hasattr(self.content_type, "name") else self.content_type
+        ver = self.version.name if hasattr(self.version, "name") else self.version
         parts = [
             f"{pad}TLSRecord:",
-            f"{pad}  content_type = {self.content_type}",
-            f"{pad}  version      = {self.version}",
+            f"{pad}  content_type = {self.content_type.name if hasattr(self.content_type, "name") else self.content_type} "
+            f"({self.content_type.value if hasattr(self.content_type, "value") else self.content_type})",
+            f"{pad}  version      = {self.version.name if hasattr(self.version, "name") else self.version} "
+            f"({self.version.value if hasattr(self.version, "value") else self.version})",
             f"{pad}  length       = {self.length}",
             f"{pad}  fragment     ="
         ]

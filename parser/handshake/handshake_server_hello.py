@@ -55,12 +55,13 @@ class ServerHello(BaseHello):
     def __str__(self, indent=0):
         pad = ' ' * indent
         parts = [
-            f"{pad}ClientHello:",
-            f"{pad}  version        = {self.version.name} ({self.version.value.hex()})",
-            f"{pad}  random         = {self.random.hex()}",
+            f"{pad}ServerHello:",
+            f"{pad}  version        = {self.version.name if hasattr(self.version, "name") else self.version} "
+            f"({self.version.value if hasattr(self.version, "value") else self.version})",
             f"{pad}  random         = {self.random.hex()}",
             f"{pad}  session_id     = {self.session_id.hex()}",
-            f"{pad}  cipher_suite   = {self.cipher_suite} ({self.cipher_suite.hex()})",
+            f"{pad}  cipher_suite   = {self.cipher_suite if hasattr(self.cipher_suite, "name") else self.cipher_suite} "
+            f"({self.cipher_suite.value if hasattr(self.cipher_suite, "value") else self.cipher_suite})",
             f"{pad}  compression    = {self.compression_meth}",
         ]
         if self.extensions:

@@ -25,66 +25,77 @@ TLSHandshake:
   length         = 244
   payload:
     ClientHello:
-      version        = TLSVersion.TLS_1_2
-      random         = b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
-      session_id     = b'\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff'
-      cipher_suites  = [<CipherSuites.TLS_AES_256_GCM_SHA384: b'\x13\x02'>, <CipherSuites.TLS_CHACHA20_POLY1305_SHA256: b'\x13\x03'>, <CipherSuites.TLS_AES_128_GCM_SHA256: b'\x13\x01'>, <CipherSuites.TLS_EMPTY_RENEGOTIATION_INFO_SCSV: b'\x00\xff'>]
-      compression    = b'\x00'
+      version        = TLS_1_2 (0303)
+      random         = 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+      session_id_len = 32
+      session_id     = e0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff
+      cipher_suites      =
+        - TLS_AES_256_GCM_SHA384 (1302)
+        - TLS_CHACHA20_POLY1305_SHA256 (1303)
+        - TLS_AES_128_GCM_SHA256 (1301)
+        - TLS_EMPTY_RENEGOTIATION_INFO_SCSV (00ff)
+      compression    = 00
       Extensions count: 10
         Extension Type: SERVER_NAME
           Length    : 24
-          Parsed    : [{'type ': b'\x00', 'name ': 'example.ulfheim.net'}]
-        Extension Type: 11
+          Parsed    :
+            {'type ': b'\x00', 'name ': 'example.ulfheim.net'}
+        Extension Type: EC_POINT_FORMATS
           Length    : 4
           Parsed    : None
         Extension Type: SUPPORTED_GROUPS
           Length    : 22
-          Parsed    : ['x25519', 'secp256r1', 'x448', 'secp521r1', 'secp384r1', 'ffdhe2048', 'ffdhe3072', 'ffdhe4096', 'ffdhe6144', 'ffdhe8192']
-        Extension Type: 35
+          Parsed    :
+            x25519
+            secp256r1
+            x448
+            secp521r1
+            secp384r1
+            ffdhe2048
+            ffdhe3072
+            ffdhe4096
+            ffdhe6144
+            ffdhe8192
+        Extension Type: SESSION_TICKET
           Length    : 0
           Parsed    : None
-        Extension Type: 22
+        Extension Type: ENCRYPT_THEN_MAC
           Length    : 0
           Parsed    : None
-        Extension Type: 23
+        Extension Type: EXTENDED_MASTER_SECRET
           Length    : 0
           Parsed    : None
         Extension Type: SIGNATURE_ALGORITHMS
           Length    : 30
-          Parsed    : ['ecdsa_secp256r1_sha256', 'ecdsa_secp384r1_sha384', 'ecdsa_secp521r1_sha512', 'ed25519', 'ed448', 'rsa_pss_rsae_sha256', 'rsa_pss_rsae_sha384', 'rsa_pss_rsae_sha512', 'rsa_pss_pss_sha256', 'rsa_pss_pss_sha384', 'rsa_pss_pss_sha512', 'rsa_pkcs1_sha256', 'rsa_pkcs1_sha384', 'rsa_pkcs1_sha512']
+          Parsed    :
+            ecdsa_secp256r1_sha256
+            ecdsa_secp384r1_sha384
+            ecdsa_secp521r1_sha512
+            ed25519
+            ed448
+            rsa_pss_rsae_sha256
+            rsa_pss_rsae_sha384
+            rsa_pss_rsae_sha512
+            rsa_pss_pss_sha256
+            rsa_pss_pss_sha384
+            rsa_pss_pss_sha512
+            rsa_pkcs1_sha256
+            rsa_pkcs1_sha384
+            rsa_pkcs1_sha512
         Extension Type: SUPPORTED_VERSIONS
           Length    : 3
-          Parsed    : [<TLSVersion.TLS_1_3: b'\x03\x04'>]
+          Parsed    :
+            TLSVersion.TLS_1_3
         Extension Type: PSK_KEY_EXCHANGE_MODES
           Length    : 2
-          Parsed    : ['psk_dhe_ke']
+          Parsed    :
+            psk_dhe_ke
         Extension Type: KEY_SHARE
           Length    : 38
-          Parsed    : [{'group ': 29, 'group_name': 'x25519', 'key_exchange': '358072d6365880d1aeea329adf9121383851ed21a28e3b75e965d0d2cd166254'}] 
+          Parsed    :
+            {'group ': 29, 'group_name': 'x25519', 'key_exchange': '358072d6365880d1aeea329adf9121383851ed21a28e3b75e965d0d2cd166254'} 
 ----------Parsing packet no: 3 -----------
-TLSRecord:
-  content_type = ContentType.HANDSHAKE
-  version      = TLSVersion.TLS_1_2
-  length       = 122
-  fragment     =
-TLSHandshake:
-  handshake_type = HandshakeType.SERVER_HELLO
-  length         = 118
-  payload:
-    ClientHello:
-      version        = TLSVersion.TLS_1_2
-      random         = 707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f
-      session_id     = e0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff
-      cipher_suite   = CipherSuites.TLS_AES_256_GCM_SHA384
-      compression    = b'\x00'
-      Extensions count: 2
-        Extension Type: SUPPORTED_VERSIONS
-          Length    : 2
-          Parsed    : [<TLSVersion.TLS_1_3: b'\x03\x04'>]
-        Extension Type: KEY_SHARE
-          Length    : 36
-          Parsed    : [{'group ': 29, 'group_name': 'x25519', 'key_exchange': '9fd7ad6dcff4298dd3f96d5b1b2af910a0535b1488d7f8fabb349a982880b615'}] 
-----------Parsing packet no: 4 -----------
+Failed to parse 3: AttributeError - 'CipherSuites' object has no attribute 'hex'----------Parsing packet no: 4 -----------
 TLSRecord:
   content_type = ContentType.HANDSHAKE
   version      = TLSVersion.TLS_1_0
@@ -104,53 +115,18 @@ TLSHandshake:
   length         = 44
   payload:
     ClientHello:
-      version        = TLSVersion.TLS_1_2
-      random         = b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f'
-      session_id     = b'\xaa'
-      cipher_suites  = [<CipherSuites.TLS_RSA_WITH_AES_128_CBC_SHA: b'\x00/'>, <CipherSuites.TLS_RSA_WITH_AES_256_CBC_SHA: b'\x005'>]
-      compression    = b'\x00' 
+      version        = TLS_1_2 (0303)
+      random         = 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
+      session_id_len = 1
+      session_id     = aa
+      cipher_suites      =
+        - TLS_RSA_WITH_AES_128_CBC_SHA (002f)
+        - TLS_RSA_WITH_AES_256_CBC_SHA (0035)
+      compression    = 00 
 ----------Parsing packet no: 6 -----------
 Failed to parse 6: TypeError - bytes() argument 'encoding' must be str, not int----------Parsing packet no: 7 -----------
-TLSRecord:
-  content_type = ContentType.HANDSHAKE
-  version      = TLSVersion.TLS_1_2
-  length       = 49
-  fragment     =
-TLSHandshake:
-  handshake_type = HandshakeType.SERVER_HELLO
-  length         = 45
-  payload:
-    ClientHello:
-      version        = TLSVersion.TLS_1_2
-      random         = 707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f
-      session_id     = 
-      cipher_suite   = CipherSuites.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
-      compression    = b'\x00'
-      Extensions count: 1
-        Extension Type: RENEGOTIATION_INFO
-          Length    : 1
-          Parsed    : None 
-----------Parsing packet no: 8 -----------
-TLSRecord:
-  content_type = ContentType.HANDSHAKE
-  version      = TLSVersion.TLS_1_2
-  length       = 65
-  fragment     =
-TLSHandshake:
-  handshake_type = HandshakeType.SERVER_HELLO
-  length         = 61
-  payload:
-    ClientHello:
-      version        = TLSVersion.TLS_1_2
-      random         = 112233445566778899aabbccddeeff00102030405060708090a0b0c0d0e0f000
-      session_id     = 00
-      cipher_suite   = CipherSuites.TLS_RSA_WITH_AES_128_CBC_SHA
-      compression    = b'\x00'
-      Extensions count: 1
-        Extension Type: SERVER_NAME
-          Length    : 16
-          Parsed    : None 
-----------Parsing packet no: 9 -----------
+Failed to parse 7: AttributeError - 'CipherSuites' object has no attribute 'hex'----------Parsing packet no: 8 -----------
+Failed to parse 8: AttributeError - 'CipherSuites' object has no attribute 'hex'----------Parsing packet no: 9 -----------
 Failed to parse 9: TypeError - list indices must be integers or slices, not str----------Parsing packet no: 10 -----------
 TLSRecord:
   content_type = ContentType.HANDSHAKE
@@ -176,48 +152,87 @@ TLSHandshake:
   length         = 1812
   payload:
     ClientHello:
-      version        = TLSVersion.TLS_1_2
-      random         = b'miz\xc8A\xb4\xee\x8f\x88\x84\x84:\x14\xfcT\x13\xf8\x0f\xd7\xf5I\x0b\xe5\xcb(\xc2\xe1\x84\xa1\xc5\xc7\xd0'
-      session_id     = b'\xbc|+?\xc3\xd5{yU\x12\xf3\r\x12\xf2M\xb5+\t\xfd\xf8V\xd2O\x15\xb0\x8d\xb8\xaf\x84\xed\xdc\xed'
-      cipher_suites  = [b'\xca\xca', <CipherSuites.TLS_AES_128_GCM_SHA256: b'\x13\x01'>, <CipherSuites.TLS_AES_256_GCM_SHA384: b'\x13\x02'>, <CipherSuites.TLS_CHACHA20_POLY1305_SHA256: b'\x13\x03'>, <CipherSuites.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: b'\xc0+'>, <CipherSuites.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256: b'\xc0/'>, <CipherSuites.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: b'\xc0,'>, <CipherSuites.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384: b'\xc00'>, <CipherSuites.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: b'\xcc\xa9'>, <CipherSuites.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256: b'\xcc\xa8'>, <CipherSuites.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA: b'\xc0\x13'>, <CipherSuites.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA: b'\xc0\x14'>, <CipherSuites.TLS_RSA_WITH_AES_128_GCM_SHA256: b'\x00\x9c'>, <CipherSuites.TLS_RSA_WITH_AES_256_GCM_SHA384: b'\x00\x9d'>, <CipherSuites.TLS_RSA_WITH_AES_128_CBC_SHA: b'\x00/'>, <CipherSuites.TLS_RSA_WITH_AES_256_CBC_SHA: b'\x005'>]
-      compression    = b'\x00'
+      version        = TLS_1_2 (0303)
+      random         = 6d697ac841b4ee8f8884843a14fc5413f80fd7f5490be5cb28c2e184a1c5c7d0
+      session_id_len = 32
+      session_id     = bc7c2b3fc3d57b795512f30d12f24db52b09fdf856d24f15b08db8af84eddced
+      cipher_suites      =
+        - b'\xca\xca'
+        - TLS_AES_128_GCM_SHA256 (1301)
+        - TLS_AES_256_GCM_SHA384 (1302)
+        - TLS_CHACHA20_POLY1305_SHA256 (1303)
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (c02b)
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (c02f)
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (c02c)
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (c030)
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 (cca9)
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 (cca8)
+        - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (c013)
+        - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (c014)
+        - TLS_RSA_WITH_AES_128_GCM_SHA256 (009c)
+        - TLS_RSA_WITH_AES_256_GCM_SHA384 (009d)
+        - TLS_RSA_WITH_AES_128_CBC_SHA (002f)
+        - TLS_RSA_WITH_AES_256_CBC_SHA (0035)
+      compression    = 00
       Extensions count: 18
         Extension Type: 10794
           Length    : 0
           Parsed    : None
         Extension Type: SUPPORTED_VERSIONS
           Length    : 7
-          Parsed    : [(58, 58), <TLSVersion.TLS_1_3: b'\x03\x04'>, <TLSVersion.TLS_1_2: b'\x03\x03'>]
-        Extension Type: RENEGOTIATION_INFO
+          Parsed    :
+            (58, 58)
+            TLSVersion.TLS_1_3
+            TLSVersion.TLS_1_2
+        Extension Type: RENNEGOTIATION_INFO
           Length    : 1
           Parsed    : None
         Extension Type: STATUS_REQUEST
           Length    : 5
           Parsed    : None
-        Extension Type: 35
+        Extension Type: SESSION_TICKET
           Length    : 0
           Parsed    : None
         Extension Type: 17613
           Length    : 5
           Parsed    : None
-        Extension Type: ALPN
+        Extension Type: APPLICATION_LAYER_PROTOCOL_NEGOTIATION
           Length    : 14
-          Parsed    : None
+          Parsed    :
+            h2
+            http/1.1
         Extension Type: 27
           Length    : 3
           Parsed    : None
         Extension Type: SUPPORTED_GROUPS
           Length    : 12
-          Parsed    : ['Unknown (27242)', 'Unknown (4588)', 'x25519', 'secp256r1', 'secp384r1']
+          Parsed    :
+            Unknown (27242)
+            Unknown (4588)
+            x25519
+            secp256r1
+            secp384r1
         Extension Type: SIGNATURE_ALGORITHMS
           Length    : 18
-          Parsed    : ['ecdsa_secp256r1_sha256', 'rsa_pss_pss_sha256', 'rsa_pkcs1_sha256', 'ecdsa_secp384r1_sha384', 'rsa_pss_pss_sha384', 'rsa_pkcs1_sha384', 'rsa_pss_pss_sha512', 'rsa_pkcs1_sha512']
+          Parsed    :
+            ecdsa_secp256r1_sha256
+            rsa_pss_pss_sha256
+            rsa_pkcs1_sha256
+            ecdsa_secp384r1_sha384
+            rsa_pss_pss_sha384
+            rsa_pkcs1_sha384
+            rsa_pss_pss_sha512
+            rsa_pkcs1_sha512
         Extension Type: SERVER_NAME
           Length    : 20
-          Parsed    : [{'type ': b'\x00', 'name ': 'apex.oracle.com'}]
+          Parsed    :
+            {'type ': b'\x00', 'name ': 'apex.oracle.com'}
         Extension Type: KEY_SHARE
           Length    : 1263
-          Parsed    : [{'group ': 27242, 'group_name': 'Unknown (27242)', 'key_exchange': '00'}, {'group ': 4588, 'group_name': 'Unknown (4588)', 'key_exchange': 'd85c00bada72320aa59ab72003bbbb06ca5d6173cc6c7883279c556fe9b4ac91bf35e66ad35590ef2176b74a323573a07e42ca13e94e7b823db1901ea7993291c4bcdde5066252834e65031aa9a572880ae9738c1d4067c05ac59300773476643cfc049e0a12113756192399a75a6e3619ad42e0b2149a77d1551cdaa30bdb1c89a0048975dcaf6b879f665370f3c7319f4271a265cc9510734b09c04b618e0c96cd805133d7208335b35f53c65470242315a38a32550cc4ac242b75573ca8a373d176f4635325f4a7186a9148d63e2d1230820050c2e1469ffc49320bad87d8c377f7187bb821626469bd2a587fd518d7c57349e58f4071078ae871fa1c805871a87fab5053c3059b969abab523d33206d4da5851f6a70d739e9395416da39effd07bd74901b950291b55cc3a347c406b58d547c587d62f5f327b52342bda676f572722a5b865df798292fa294ebb483ff2c423f5142d51162822b4b93172a61b4440778569712b7dc74b6afa33e8458bad6912ef19463cc957410a398208a349db84d8c750b9c4ac37ba3f54875c020978dac1c10adcb280922f8c5b4d57cc6dd1036a38591d91ab8a78f6008a0530c7c76c8d173c46a694af697cdf763d18572c99776a4440c8afe90fab928666e5046a2a921a313a750c9c48bc4ea860c6a9e251c1d941b712c7c0b5a4da9566440ab471053d9f14062c27939865498a75bc92538dddd4173f7b5c19e4783cfb70e745ac760b6867e72945e042fb096e3ca2547ecaa7f7b41feba1c94ff2041c34af9a08d06f3aaf7d654cf69450b6e4414a53ac2f749beb3c5c1d25b7f5b553e36061327c25093b1698aba71dea77fbbc9c7f49466b53c9376bc24f6b26e85a13c23a929998c1353b5c5926c033f372233a6263449483b5851457c867e7bc26617dbf5575ad346f2fab59cf0b21c51c786cc5366cf3ac167055ff27134f0b17ac18154aa6bde6340aa1003b74983525f2c1ae060c2a45190e0a87e24cb5f2269ce433171eba4a9cda4b34a5c5ca533e50bb7e69373df379a0fd3651054ba9153b3f36ab470b2709325891cad7083626b5a2448b28b3394f63b33a808cf0b0531b15024f042ed8b7c111323c377258aa75c13ae45937d627611c30e12b3cd48a332f17c0c320c915121480249615f9685c252a12f50a4c890c243c80efc4b166cbbe0034317fdb59428c360dd78eeb533560e5b83994c99d994504e122ba2b78f72c1319d04124560f9072a2ca4b3957f90caa834ca4325f14dac9347493a7e731461a2d88e2c13e0034bea20a42c691ddaaa61ee2901c5557f9e0b239279ed2586bd3469e5205398ca5402aec072ff2564dc7ae5e9667aeaa4cbcf96bb8c8a3419041b7f641cee26d9f0bced7842cda7890b675386e543d5ae322bb53bb5606c3b8d44e6facc5b87b3f843c99dbf1882b43a89165861d3ba769735272a6175a858ee38a81ae32173e3b538f1839c514919d6962263a7a8ad9800c2798cdea408c23165f1c8c59d782dcfa45d8857e1390b58540458713cd8d9a2e8ccbcfc472bb2e96213b06c281fc82afa76d04102a7b8a671b63afc35a98b9b22c59893a7047659f7609c6ab0206694fc5125ca13b4a81593625afc57db06231534c6c1a767fd17876b7db9e7ac146b3f3f29a784565abc3744a78360bcec714475cdeb36b174fde0e5e00a86611ed78ddd8f1364f67'}, {'group ': 29, 'group_name': 'x25519', 'key_exchange': '529970babfbe868797b7529cc6ea7af39b264265f410f07f0457fbc86ba57b19'}]
+          Parsed    :
+            {'group ': 27242, 'group_name': 'Unknown (27242)', 'key_exchange': '00'}
+            {'group ': 4588, 'group_name': 'Unknown (4588)', 'key_exchange': 'd85c00bada72320aa59ab72003bbbb06ca5d6173cc6c7883279c556fe9b4ac91bf35e66ad35590ef2176b74a323573a07e42ca13e94e7b823db1901ea7993291c4bcdde5066252834e65031aa9a572880ae9738c1d4067c05ac59300773476643cfc049e0a12113756192399a75a6e3619ad42e0b2149a77d1551cdaa30bdb1c89a0048975dcaf6b879f665370f3c7319f4271a265cc9510734b09c04b618e0c96cd805133d7208335b35f53c65470242315a38a32550cc4ac242b75573ca8a373d176f4635325f4a7186a9148d63e2d1230820050c2e1469ffc49320bad87d8c377f7187bb821626469bd2a587fd518d7c57349e58f4071078ae871fa1c805871a87fab5053c3059b969abab523d33206d4da5851f6a70d739e9395416da39effd07bd74901b950291b55cc3a347c406b58d547c587d62f5f327b52342bda676f572722a5b865df798292fa294ebb483ff2c423f5142d51162822b4b93172a61b4440778569712b7dc74b6afa33e8458bad6912ef19463cc957410a398208a349db84d8c750b9c4ac37ba3f54875c020978dac1c10adcb280922f8c5b4d57cc6dd1036a38591d91ab8a78f6008a0530c7c76c8d173c46a694af697cdf763d18572c99776a4440c8afe90fab928666e5046a2a921a313a750c9c48bc4ea860c6a9e251c1d941b712c7c0b5a4da9566440ab471053d9f14062c27939865498a75bc92538dddd4173f7b5c19e4783cfb70e745ac760b6867e72945e042fb096e3ca2547ecaa7f7b41feba1c94ff2041c34af9a08d06f3aaf7d654cf69450b6e4414a53ac2f749beb3c5c1d25b7f5b553e36061327c25093b1698aba71dea77fbbc9c7f49466b53c9376bc24f6b26e85a13c23a929998c1353b5c5926c033f372233a6263449483b5851457c867e7bc26617dbf5575ad346f2fab59cf0b21c51c786cc5366cf3ac167055ff27134f0b17ac18154aa6bde6340aa1003b74983525f2c1ae060c2a45190e0a87e24cb5f2269ce433171eba4a9cda4b34a5c5ca533e50bb7e69373df379a0fd3651054ba9153b3f36ab470b2709325891cad7083626b5a2448b28b3394f63b33a808cf0b0531b15024f042ed8b7c111323c377258aa75c13ae45937d627611c30e12b3cd48a332f17c0c320c915121480249615f9685c252a12f50a4c890c243c80efc4b166cbbe0034317fdb59428c360dd78eeb533560e5b83994c99d994504e122ba2b78f72c1319d04124560f9072a2ca4b3957f90caa834ca4325f14dac9347493a7e731461a2d88e2c13e0034bea20a42c691ddaaa61ee2901c5557f9e0b239279ed2586bd3469e5205398ca5402aec072ff2564dc7ae5e9667aeaa4cbcf96bb8c8a3419041b7f641cee26d9f0bced7842cda7890b675386e543d5ae322bb53bb5606c3b8d44e6facc5b87b3f843c99dbf1882b43a89165861d3ba769735272a6175a858ee38a81ae32173e3b538f1839c514919d6962263a7a8ad9800c2798cdea408c23165f1c8c59d782dcfa45d8857e1390b58540458713cd8d9a2e8ccbcfc472bb2e96213b06c281fc82afa76d04102a7b8a671b63afc35a98b9b22c59893a7047659f7609c6ab0206694fc5125ca13b4a81593625afc57db06231534c6c1a767fd17876b7db9e7ac146b3f3f29a784565abc3744a78360bcec714475cdeb36b174fde0e5e00a86611ed78ddd8f1364f67'}
+            {'group ': 29, 'group_name': 'x25519', 'key_exchange': '529970babfbe868797b7529cc6ea7af39b264265f410f07f0457fbc86ba57b19'}
         Extension Type: 65037
           Length    : 282
           Parsed    : None
@@ -226,48 +241,16 @@ TLSHandshake:
           Parsed    : None
         Extension Type: PSK_KEY_EXCHANGE_MODES
           Length    : 2
-          Parsed    : ['psk_dhe_ke']
-        Extension Type: 11
+          Parsed    :
+            psk_dhe_ke
+        Extension Type: EC_POINT_FORMATS
           Length    : 2
           Parsed    : None
-        Extension Type: 23
+        Extension Type: EXTENDED_MASTER_SECRET
           Length    : 0
           Parsed    : None
         Extension Type: 43690
           Length    : 1
           Parsed    : None 
 ----------Parsing packet no: 13 -----------
-TLSRecord:
-  content_type = ContentType.HANDSHAKE
-  version      = TLSVersion.TLS_1_2
-  length       = 108
-  fragment     =
-TLSHandshake:
-  handshake_type = HandshakeType.SERVER_HELLO
-  length         = 104
-  payload:
-    ClientHello:
-      version        = TLSVersion.TLS_1_2
-      random         = d4cb8b831096d177f635a2efd37eabdf7c5e258ef8266f1735562f768bcd63ce
-      session_id     = 382df3ccd94abd6e370c4d0d99a84f94ed2e38cbf29938fed689d88ccf931b8f
-      cipher_suite   = CipherSuites.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-      compression    = b'\x00'
-      Extensions count: 6
-        Extension Type: SERVER_NAME
-          Length    : 0
-          Parsed    : None
-        Extension Type: 11
-          Length    : 2
-          Parsed    : None
-        Extension Type: RENEGOTIATION_INFO
-          Length    : 1
-          Parsed    : None
-        Extension Type: ALPN
-          Length    : 5
-          Parsed    : None
-        Extension Type: 35
-          Length    : 0
-          Parsed    : None
-        Extension Type: 23
-          Length    : 0
-          Parsed    : None 
+Failed to parse 13: AttributeError - 'CipherSuites' object has no attribute 'hex'

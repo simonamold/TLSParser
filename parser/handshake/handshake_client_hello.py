@@ -72,7 +72,8 @@ class ClientHello(BaseHello):
         pad = ' ' * indent
         parts = [
             f"{pad}ClientHello:",
-            f"{pad}  version        = {self.version.name} ({self.version.value.hex()})",
+            f"{pad}  version        = {self.version.name if hasattr(self.version, "name") else self.version} "
+            f"({self.version.value if hasattr(self.version, "value") else self.version})",
             f"{pad}  random         = {self.random.hex()}",
             f"{pad}  session_id_len = {self.session_id_length}",
             f"{pad}  session_id     = {self.session_id.hex()}",
