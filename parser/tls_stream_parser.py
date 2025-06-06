@@ -1,7 +1,9 @@
 from io import BytesIO
+import logging
 
 from parser.tls_record import TLSRecord
 
+logger = logging.getLogger(__name__)
 
 class TLSStreamParser:
     def __init__(self, data: bytes):
@@ -12,7 +14,6 @@ class TLSStreamParser:
 
     def parse(self):
         while self.stream.tell() < len(self.raw_data):
-            start_pos = self.stream.tell()
 
             # Rrecord header
             header = self.stream.read(5)
@@ -33,7 +34,8 @@ class TLSStreamParser:
             try:
                 record.parse()
             except Exception as e:
-                print(f"TLS StreamParser error: {e}")
+                #print(f"TLS StreamParser error: {e}")
+                logger.error("TLS StreamParser error", exc_info=True)
             self.records.append(record)
 
 

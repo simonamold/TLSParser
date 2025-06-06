@@ -1,4 +1,5 @@
 from io import BytesIO
+import logging
 from common.enums.content_types import ContentType
 from common.exceptions import *
 from common.utils import EnumResolver, VersionResolver, validate_declared_length, validate_min_length
@@ -13,6 +14,7 @@ from .tls_app_data import TLSAppData
 # - length = 2 bytes max 2^14
 # Ex = \x16\x03\x03\x00\x31
 
+logger = logging.getLogger(__name__)
 
 class TLSRecord:
     TAG = "[ TLS Record ]"
@@ -39,8 +41,8 @@ class TLSRecord:
             validate_min_length(self.raw_packet, 5, context=self.TAG)
         except TLSUnexpectedLengthError as e:
             self.is_valid = False
-            self.errors[str(e)]
-            print(f"{self.TAG} Packet dropped: {e}")
+            self.errors.append(str(e))
+            logger.error("Packet dropped", exc_info=True)
             return
         
         
@@ -55,7 +57,8 @@ class TLSRecord:
         except TLSUnknownContentTypeError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} Content type parsing error: {e}")
+            logger.error("Content type parsing error", exc_info=True)
+            #print(f"{self.TAG} Content type parsing error: {e}")
             self.content_type = self.raw_content_type
         
         self.raw_major_ver = int.from_bytes(stream.read(1), 'big')
@@ -68,7 +71,8 @@ class TLSRecord:
         except TLSUnknownVersionError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} Version parsing error: {e}")
+            #print(f"{self.TAG} Version parsing error: {e}")
+            logger.error("Version parsing error", exc_info=True)
             self.version = bytes([self.raw_major_ver, self.raw_minor_ver])
     
         
@@ -95,17 +99,19 @@ class TLSRecord:
                         self.payload = TLSAppData(self.raw_payload)
 
                     case _:
-                        print(f"[{self.TAG}] Unknown content type: {self.content_type}")
+                        #print(f"[{self.TAG}] Unknown content type: {self.content_type}")
                         self.payload = None
             except TLSParserError as e:
                 self.is_valid = False
                 self.errors.append(str(e))
-                print(f"{self.TAG} Payload parsing error: {e}")
+                #print(f"{self.TAG} Payload parsing error: {e}")
+                logger.error("Payload parsing error", exc_info=True)
 
         except TLSUnexpectedLengthError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} Payload length validation error: {e}")
+            #print(f"{self.TAG} Payload length validation error: {e}")
+            logger.error("Payload length validation error", exc_info=True)
         
     
 

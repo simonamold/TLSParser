@@ -3,6 +3,7 @@ from common.exceptions import TLSParserError, TLSUndeclaredCipherSuite
 from parser.handshake.tls_extensions import TLSExtensions
 from parser.handshake.tls_hello_message import BaseHello
 from common.utils import EnumResolver, read_exact
+import logging
 
 # Server Hello Structure  RFC 8446
 #   server_version 2 bytes
@@ -13,6 +14,7 @@ from common.utils import EnumResolver, read_exact
 #   uint8 compression_method  = 0
 #   extensions <8...2^16-1> optional
 
+logger = logging.getLogger(__name__)
 
 class ServerHello(BaseHello):
     TAG = "[ Server Hello ]"
@@ -36,14 +38,16 @@ class ServerHello(BaseHello):
                 self.cipher_suite = EnumResolver.parse(CipherSuites, cipher_suite_bytes, exception_cls=TLSUndeclaredCipherSuite)
             except TLSUndeclaredCipherSuite as e:    
                 self.errors.append(str(e))
-                print(f"{self.TAG} Cipher Suite parsing error: {e}")
+                #print(f"{self.TAG} Cipher Suite parsing error: {e}")
+                logger.error("Cipher Suite parsing error", exc_info=True)
                 self.cipher_suite = cipher_suite_bytes
                 
             self.compression_meth = read_exact(self.stream, 1, "compression_method")
         except TLSParserError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} : {e}")
+            #print(f"{self.TAG} : {e}")
+            logger.error("ServerHello parsing error", exc_info=True)
         # EXtensions
         
         if self.stream.tell() < len(self.raw_hello_msg):

@@ -1,4 +1,5 @@
 from io import BytesIO
+import logging
 from common.enums.handshake_types import HandshakeType
 from common.exceptions import *
 from common.utils import EnumResolver, validate_min_length, validate_declared_length
@@ -9,6 +10,7 @@ from .handshake_server_hello import ServerHello
 # - 1 Handshake type
 # - 3 Length 
 
+logger = logging.getLogger(__name__)
 
 class TLSHandshake:
     TAG = "[ TLS Handshake ]"
@@ -33,7 +35,7 @@ class TLSHandshake:
         except TLSUnexpectedLengthError as e:
             self.is_valid = False
             self.errors[str(e)]
-            print(f"{self.TAG} Packet dropped: {e}")
+            logger.error("Packet dropped", exc_info=True)
             return
 
         self.raw_handshake_type = int.from_bytes(stream.read(1), 'big')
@@ -46,7 +48,8 @@ class TLSHandshake:
         except TLSUnknownHandshakeTypeError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} Handshake type parsing error: {e}")
+            #print(f"{self.TAG} Handshake type parsing error: {e}")
+            logger.error("Handshake type parsing error", exc_info=True)
             self.handshake_type = self.raw_handshake_type
 
         self.length = int.from_bytes(stream.read(3), 'big')
@@ -70,7 +73,8 @@ class TLSHandshake:
                         except TLSUnexpectedLengthError as e:
                             self.is_valid = False
                             self.errors.append(str(e))
-                            print(f"{self.TAG} Client Hello length validation error: {e}")
+                            #print(f"{self.TAG} Client Hello length validation error: {e}")
+                            logger.error("Client Hello length validation error", exc_info=True)
 
                         self.handshake_payload = ClientHello(self.raw_handshake_paylaod, self.handshake_type, self.errors)
                         self.handshake_payload.parse_client_hello()
@@ -88,22 +92,25 @@ class TLSHandshake:
                         except TLSUnexpectedLengthError as e:
                             self.is_valid = False
                             self.errors.append(str(e))
-                            print(f"{self.TAG} Server Hello length validation error: {e}")
+                            #print(f"{self.TAG} Server Hello length validation error: {e}")
+                            logger.error("Server Hello length validation error", exc_info=True)
 
                         self.handshake_payload = ServerHello(self.raw_handshake_paylaod, self.handshake_type, self.errors)
                         self.handshake_payload.parse_server_hello()
 
                     case _:
-                        print(f"{self.TAG} Unknown handshake type: {self.handshake_type}")
+                        #print(f"{self.TAG} Unknown handshake type: {self.handshake_type}")
                         self.handshake_payload = None
             except TLSParserError as e:
                 self.is_valid = False
                 self.errors.append(str(e))
-                print("f{self.TAG} Handshake payload parsing error: {e}")
+                #print("f{self.TAG} Handshake payload parsing error: {e}")
+                logger.error("Handshake payload parsing error", exc_info=True)
         except TLSUnexpectedLengthError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} Payload length validation error: {e}")
+            #print(f"{self.TAG} Payload length validation error: {e}")
+            logger.error("Payload length validation error", exc_info=True)
 
 
     def __str__(self, indent=0):

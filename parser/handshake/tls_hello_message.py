@@ -1,4 +1,5 @@
 from io import BytesIO
+import logging
 from common.utils import VersionResolver
 from common.exceptions import *
 
@@ -9,6 +10,7 @@ from common.exceptions import *
     session_is_length 1 byte
     session_id <0...32> byes
 """
+logger = logging.getLogger(__name__)
 
 class BaseHello:
     TAG = "[ BaseHello ]"
@@ -36,7 +38,8 @@ class BaseHello:
         except TLSUnknownVersionError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} Version parsing error: {e}")
+            #print(f"{self.TAG} Version parsing error: {e}")
+            logger.error("Version parsing error", exc_info=True)
             self.version = bytes(self.raw_major_ver, self.raw_minor_ver)
  
         self.random = self.stream.read(32)

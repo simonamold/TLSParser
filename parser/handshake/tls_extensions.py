@@ -6,6 +6,7 @@ from common.enums.tls_extension_types import ExtensionType
 from common.exceptions import TLSParserError, TLSUnknownExtensionTypeError
 from common.utils import EnumResolver, VersionResolver, read_exact
 from common.constants import KEY_SHARE_NAMED_GROUPS, SIGNATURE_SCHEMES
+import logging
 
 """
     RFC 8446 - 4.2
@@ -15,6 +16,9 @@ struct {
         opaque extension_data<0..2^16-1>;
     } Extension;
 """
+
+logger = logging.getLogger(__name__)
+
 class TLSExtensions():
     TAG = "[ TLS Extensions ]"
     def __init__(self, stream: BytesIO, handshake_type: int, error_list=None):
@@ -30,7 +34,9 @@ class TLSExtensions():
         except TLSParserError as e:
                 self.is_valid = False
                 self.errors.append(str(e))
-                print(f"{self.TAG} : {e}")
+                #print(f"{self.TAG} : {e}")
+                logger.error(exc_info=True)
+                
         end = self.stream.tell() + extensions_length
 
         while self.stream.tell() < end:
@@ -39,13 +45,15 @@ class TLSExtensions():
             except TLSParserError as e:
                 self.is_valid = False
                 self.errors.append(str(e))
-                print(f"{self.TAG} : {e}")
+                #print(f"{self.TAG} : {e}")
+                logger.error(exc_info=True)
             
             try:
                 extension_type = EnumResolver.parse(ExtensionType, raw_extension_type, exception_cls=TLSUnknownExtensionTypeError)
             except TLSUnknownExtensionTypeError as e:
                 self.errors.append(str(e))
-                print(f"{self.TAG} Extension type error: {e}")
+                #print(f"{self.TAG} Extension type error: {e}")
+                logger.error("Extension type error", exc_info=True)
                 extension_type = raw_extension_type
 
             try:
@@ -54,7 +62,8 @@ class TLSExtensions():
             except TLSParserError as e:
                 self.is_valid = False
                 self.errors.append(str(e))
-                print(f"{self.TAG} : {e}")
+                #print(f"{self.TAG} : {e}")
+                logger.error("Extension length error", exc_info=True)
 
 
             extension = TLSExtension(extension_type, extension_length, extension_data)
@@ -83,7 +92,8 @@ class TLSExtensions():
                         
             except ValueError as e:
                 self.errors.append(str(e))
-                print(f"{self.TAG} error: {e}")
+                #print(f"{self.TAG} error: {e}")
+                logger.error(f"{self.TAG} error", exc_info=True)
             
             self.extensions.append(extension)
         

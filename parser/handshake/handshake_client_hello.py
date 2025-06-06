@@ -1,5 +1,6 @@
 from common.enums.cipher_suites import CipherSuites
 from common.exceptions import *
+import logging
 from parser.handshake.tls_extensions import TLSExtensions
 from parser.handshake.tls_hello_message import BaseHello
 from common.utils import EnumResolver, read_exact, format_cipher_suites
@@ -13,6 +14,7 @@ from common.utils import EnumResolver, read_exact, format_cipher_suites
 #   compression_method <1....2^8-1>  -> legacy TLS 1.3 no longer allow compression
 #   extensions <8...2^16-1> optional
 
+logger = logging.getLogger(__name__)
 
 class ClientHello(BaseHello):
     TAG = "[ Client Hello ]"
@@ -47,7 +49,8 @@ class ClientHello(BaseHello):
                     suite = EnumResolver.parse(CipherSuites, suite_bytes, exception_cls=TLSUndeclaredCipherSuite)
                 except TLSUndeclaredCipherSuite as e:
                     self.errors.append(str(e))
-                    print(f"{self.TAG} Cipher Suite parsing error: {e}")
+                    #print(f"{self.TAG} Cipher Suite parsing error: {e}")
+                    logger.error("Cipher Suite parsing error", exc_info=True)
                     suite = suite_bytes  
                 self.cipher_suites.append(suite)
 
@@ -57,7 +60,8 @@ class ClientHello(BaseHello):
         except TLSParserError as e:
             self.is_valid = False
             self.errors.append(str(e))
-            print(f"{self.TAG} : {e}")
+            #print(f"{self.TAG} : {e}")
+            logger.error("ClientHello parsing error", exc_info=True)
 
 
         # Extensions 
