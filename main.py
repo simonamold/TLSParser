@@ -4,8 +4,9 @@ from parser.tls_record import TLSRecord
 from common.exceptions import *
 from parser.tls_stream_parser import TLSStreamParser
 from tools.test_data import *
+from ui.gui import run_gui
 
-logging.basicConfig(level=logging.DEBUG, filename='tls_parser.log', filemode='a', 
+logging.basicConfig(level=logging.DEBUG, filename='tls_parser.log', filemode='w', 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler(filename='tls_parser.log')
@@ -132,4 +133,5 @@ def test_tls_payload_parsing(payloads_dir="tools/tls_payloads", log_file="tools/
                 #print(f"Failed to parse {filename}: {e.__class__.__name__} - {e}")
 
 if __name__ == "__main__":
-    main()
+    #main()
+    run_gui()
