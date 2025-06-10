@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class TLSRecord:
     TAG = "[ TLS Record ]"
-    def __init__(self, raw_bytes: BytesIO):
+    def __init__(self, raw_bytes: bytes):
         self.is_valid = True
         self.errors = []
 

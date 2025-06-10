@@ -20,14 +20,9 @@ class TLSUndeclaredCipherSuite(TLSParserError):
     pass
 
 # TLS Alert
-class TLSAlertError(Exception):
-    """Base class for Alert parsing errors"""
 
-class IncompleteAlertError(TLSAlertError):
+class UnknownALertLevelError(TLSParserError):
     pass
 
-class UnknownALertLevelError(TLSAlertError):
-    pass
-
-class UnknownALtertDescription(TLSAlertError):
+class UnknownALtertDescription(TLSParserError):
     pass

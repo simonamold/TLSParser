@@ -1,4 +1,4 @@
-from scapy.all import sniff, TCP, wrpcap
+from scapy.all import sniff, TCP, wrpcap, get_if_list
 import tkinter as tk
 from tkinter import filedialog, ttk
 import logging
@@ -35,6 +35,16 @@ class TLSParserApp:
         self.btn_frame = tk.Frame(self.root)
         self.btn_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
         self.btn_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        self.interface_label = tk.Label(self.btn_frame, text="Interfață:")
+
+        self.interface_label.pack(side="left", padx=(0, 5))
+
+        self.interface_var = tk.StringVar()
+        self.interface_combo = ttk.Combobox(self.btn_frame, textvariable=self.interface_var, width=20)
+        self.interface_combo['values'] = get_if_list()
+        self.interface_combo.current(0)  # selectează prima interfață ca implicit
+        self.interface_combo.pack(side="left", padx=(0, 15))
+
         self.start_btn = tk.Button(self.btn_frame, text="Start", command=self.start_capture)
         self.stop_btn = tk.Button(self.btn_frame, text="Stop", command=self.stop_capture)
         self.save_btn = tk.Button(self.btn_frame, text="Save", command=self.save_capture)
@@ -79,6 +89,7 @@ class TLSParserApp:
     def start_capture(self):
         self.stop_flag = False
         self.start_btn.config(state='disabled')
+        self.interface_combo.config(state='disabled')
         self.capture_thread = threading.Thread(target=self.sniff_packets, daemon=True)
 
         self.capture_thread.start()
@@ -86,11 +97,13 @@ class TLSParserApp:
     def stop_capture(self):
         self.stop_flag = True
         self.start_btn.config(state='normal')
+        self.interface_combo.config(state='normal')
 
     def sniff_packets(self):
         sniff(filter="tcp port 443",
               prn=self.packet_callback,
               stop_filter=self.stop_filter,
+              iface=self.interface_var.get(),
               store=False)
         
     def packet_callback(self, pkt):
